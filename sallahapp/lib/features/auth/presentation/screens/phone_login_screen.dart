@@ -442,8 +442,7 @@ class _GooglePainter extends CustomPainter {
 
 // ── Brand mark ────────────────────────────────────────────────────────────────
 
-class _BrandMark extends StatelessWidget {-
--rr
+class _BrandMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
@@ -457,7 +456,7 @@ class _BrandMark extends StatelessWidget {-
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(7),oh
+          borderRadius: BorderRadius.circular(7),
           child: Image.asset('assets/images/brikol_app_icon_192.png', fit: BoxFit.contain),
         ),
       ),
