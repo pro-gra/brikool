@@ -544,9 +544,11 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       throw Exception('Vous avez déjà une commande en cours. Terminez-la avant d\'en accepter une autre.');
     }
     final requestRef = _requests.doc(requestId);
+    final techRef = _technicians.doc(techId);
     final safeTransportFee = transportFeeMad.clamp(0, maxTransportFeeMad);
     await _db.runTransaction((transaction) async {
       final requestSnap = await transaction.get(requestRef);
+      final techSnap = await transaction.get(techRef);
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'pending') {
         throw Exception('Cette demande n\'est plus disponible.');
       }
@@ -555,6 +557,10 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       final commission = freeLaunch
           ? 0.0
           : double.parse((budget * commissionRate).toStringAsFixed(2));
+      final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
+      if (!freeLaunch && balance < commission) {
+        throw Exception('Solde insuffisant pour couvrir la commission.');
+      }
       transaction.update(requestRef, {
         'techId': techId,
         'priceQuoteMAD': budget,
@@ -567,8 +573,10 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
 
   Future<void> techGoEnRoute({required String requestId, required String techId}) async {
     final requestRef = _requests.doc(requestId);
+    final techRef = _technicians.doc(techId);
     await _db.runTransaction((transaction) async {
       final requestSnap = await transaction.get(requestRef);
+      final techSnap = await transaction.get(techRef);
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'accepted') {
         throw Exception('Statut de la demande invalide.');
       }
@@ -576,6 +584,22 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       final commission = freeLaunch
           ? 0.0
           : ((requestSnap.data()!['commissionMAD'] as num?)?.toDouble() ?? 0.0);
+      if (!freeLaunch) {
+        final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
+        if (balance < commission) {
+          throw Exception('Solde insuffisant pour couvrir la commission.');
+        }
+        transaction.update(techRef, {'walletBalance': balance - commission});
+        final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
+        transaction.set(_walletTxns.doc(txnId), {
+          'txnId': txnId,
+          'techId': techId,
+          'amountMAD': commission,
+          'type': 'commission_deduction',
+          'description': 'Commission for request $requestId',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
       transaction.update(requestRef, {
         'status': 'en_route',
         'commissionMAD': commission,
@@ -847,10 +871,28 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       if (data['otpCode'] != enteredOtp) throw Exception('Code OTP incorrect');
       if (data['status'] != 'confirmed') throw Exception('Statut de la demande invalide.');
       final companyId = data['companyId'] as String;
+      final companyRef = _companies.doc(companyId);
+      final companySnap = await transaction.get(companyRef);
       final price = (data['quotedPriceMAD'] as num?)?.toDouble() ?? 0;
       final commission = freeLaunch
           ? 0.0
           : double.parse((price * companyCommissionRate).toStringAsFixed(2));
+      if (!freeLaunch) {
+        final balance = (companySnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
+        if (balance < commission) {
+          throw Exception('Solde insuffisant pour couvrir la commission.');
+        }
+        transaction.update(companyRef, {'walletBalance': balance - commission});
+        final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
+        transaction.set(_walletTxns.doc(txnId), {
+          'txnId': txnId,
+          'companyId': companyId,
+          'amountMAD': commission,
+          'type': 'commission_deduction',
+          'description': 'Commission for project $requestId',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
       transaction.update(requestRef, {
         'status': 'in_progress',
         'startedAt': FieldValue.serverTimestamp(),
