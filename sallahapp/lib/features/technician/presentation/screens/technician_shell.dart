@@ -15,7 +15,6 @@ import '../../../../models/moroccan_cities.dart';
 import '../../../../models/technician_profile.dart';
 import '../../../../models/technician_skill.dart';
 import 'technician_home_screen.dart';
-import 'wallet_deposit_screen.dart';
 import 'technician_specialty_manager.dart';
 import 'planned_orders_screen.dart';
 import '../../../client/presentation/screens/ai_support_chat_screen.dart';
@@ -45,7 +44,6 @@ class _TechnicianShellState extends State<TechnicianShell> {
     NotificationService().registerRoute('specialty_approved', (requestId) => TechnicianHomeScreen(profile: widget.profile));
     NotificationService().registerRoute('specialty_rejected', (requestId) => TechnicianHomeScreen(profile: widget.profile));
     NotificationService().registerRoute('account_verified', (requestId) => TechnicianHomeScreen(profile: widget.profile));
-    NotificationService().registerRoute('wallet_low', (requestId) => WalletDepositScreen(currentBalance: widget.profile.walletBalance));
     await NotificationService().init(uid: uid, collection: 'technicians');
   }
 
@@ -151,8 +149,6 @@ class _DashboardTab extends StatelessWidget {
                     Expanded(child: _StatTile(icon: Icons.timer_rounded, color: const Color(0xFF2B4EAE), bg: const Color(0xFFE8EDFB),
                         value: '${stats.active}', suffix: '', label: t('dash_in_progress'))),
                   ]),
-                  const SizedBox(height: 16),
-                  _WalletCard(profile: live),
                   const SizedBox(height: 16),
                   _EarningsChartCard(requests: requests),
                   const SizedBox(height: 16),
@@ -332,40 +328,6 @@ class _StatTile extends StatelessWidget {
         ]),
         const SizedBox(height: 2),
         Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-      ]),
-    );
-  }
-}
-
-class _WalletCard extends StatelessWidget {
-  const _WalletCard({required this.profile});
-  final TechnicianProfile profile;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.watch<LanguageCubit>().state.t;
-    final low = profile.walletBalance < FirestoreService.minBalanceToGoOnline;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: low ? AppColors.danger : AppColors.border)),
-      child: Row(children: [
-        Container(width: 42, height: 42,
-            decoration: BoxDecoration(color: low ? AppColors.dangerLight : AppColors.primaryLight, borderRadius: BorderRadius.circular(14)),
-            child: Icon(Icons.account_balance_wallet_rounded, color: low ? AppColors.danger : AppColors.primary, size: 20)),
-        const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${profile.walletBalance.toStringAsFixed(2)} MAD',
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-          Text(low ? t('dash_wallet_low') : t('dash_wallet_label'),
-              style: TextStyle(fontSize: 11.5, color: low ? AppColors.danger : AppColors.textSecondary)),
-        ])),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(minimumSize: const Size(0, 40), padding: const EdgeInsets.symmetric(horizontal: 14)),
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => WalletDepositScreen(currentBalance: profile.walletBalance))),
-          child: Text(t('dash_recharge')),
-        ),
       ]),
     );
   }
