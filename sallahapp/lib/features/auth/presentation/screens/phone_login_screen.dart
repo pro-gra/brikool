@@ -287,7 +287,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                                 child: _loading
                                     ? const SizedBox(key: ValueKey('l'), width: 22, height: 22,
                                         child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                                    : const Row(key: ValueKey('b'),
+                                    : Row(key: const ValueKey('b'),
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(BrikoolLocale.text('Recevoir le code', ar: 'تلقي الرمز', darija: 'توصل بالكود'),
