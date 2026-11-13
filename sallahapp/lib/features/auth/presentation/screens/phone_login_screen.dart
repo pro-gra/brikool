@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/localization/brikool_locale.dart';
 import '../../../../core/services/auth_service.dart';
 import 'otp_verify_screen.dart';
 import 'email_auth_screen.dart';
@@ -52,11 +53,11 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
   Future<void> _submit() async {
     final rawNumber = _phoneController.text.trim();
     if (rawNumber.isEmpty) {
-      setState(() => _error = 'Veuillez entrer votre numéro de téléphone.');
+      setState(() => _error = BrikoolLocale.text('Veuillez entrer votre numéro de téléphone.', ar: 'يرجى إدخال رقم هاتفك.', darija: 'دخل رقم التيليفون ديالك عافاك.'));
       return;
     }
     if (rawNumber.length != 9) {
-      setState(() => _error = 'Veuillez entrer un numéro marocain valide.');
+      setState(() => _error = BrikoolLocale.text('Veuillez entrer un numéro marocain valide.', ar: 'يرجى إدخال رقم مغربي صحيح.', darija: 'دخل رقم مغربي صحيح عافاك.'));
       return;
     }
     final e164 = '+212$rawNumber';
@@ -135,6 +136,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _BrandMark(),
+                          const Spacer(),
+                          const BrikoolLanguagePicker(compact: true),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                             decoration: BoxDecoration(
@@ -198,10 +201,10 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                               blurRadius: 30, offset: const Offset(0, 12))],
                         ),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          const Text('Votre numéro de téléphone',
+                          Text(BrikoolLocale.text('Votre numéro de téléphone', ar: 'رقم هاتفك', darija: 'رقم التيليفون ديالك'),
                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF252D27))),
                           const SizedBox(height: 8),
-                          const Text('Nous vous enverrons un code de vérification par SMS.',
+                          Text(BrikoolLocale.text('Nous vous enverrons un code de vérification par SMS.', ar: 'سنرسل إليك رمز التحقق عبر رسالة SMS.', darija: 'غادي نصيفطو ليك كود التأكيد فـ SMS.'),
                               style: TextStyle(fontSize: 12.5, height: 1.45, color: Color(0xFF89918B))),
                           const SizedBox(height: 18),
                           // Phone field
@@ -287,7 +290,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                                     : const Row(key: ValueKey('b'),
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text('Recevoir le code',
+                                          Text(BrikoolLocale.text('Recevoir le code', ar: 'تلقي الرمز', darija: 'توصل بالكود'),
                                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
                                           SizedBox(width: 9),
                                           Icon(Icons.arrow_forward_rounded, size: 19),
@@ -304,7 +307,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                         const Expanded(child: Divider(color: Color(0xFFDCE3DE))),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: const Text('ou', style: TextStyle(fontSize: 13, color: Color(0xFF89918B), fontWeight: FontWeight.w600)),
+                          child: Text(BrikoolLocale.text('ou', ar: 'أو', darija: 'ولا'), style: TextStyle(fontSize: 13, color: Color(0xFF89918B), fontWeight: FontWeight.w600)),
                         ),
                         const Expanded(child: Divider(color: Color(0xFFDCE3DE))),
                       ]),
@@ -314,7 +317,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                       _SocialButton(
                         onTap: _googleLoading ? null : _signInWithGoogle,
                         loading: _googleLoading,
-                        label: 'Continuer avec Google',
+                        label: BrikoolLocale.text('Continuer avec Google', ar: 'المتابعة باستخدام Google', darija: 'كمل بـ Google'),
                         icon: _GoogleIcon(),
                       ),
                       const SizedBox(height: 12),
@@ -323,7 +326,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                       _SocialButton(
                         onTap: _openEmail,
                         loading: false,
-                        label: 'Continuer avec e-mail',
+                        label: BrikoolLocale.text('Continuer avec e-mail', ar: 'المتابعة بالبريد الإلكتروني', darija: 'كمل بالإيميل'),
                         icon: const Icon(Icons.email_outlined, size: 20, color: Color(0xFF3D4A41)),
                       ),
                       const SizedBox(height: 24),
@@ -333,7 +336,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.primary),
                           const SizedBox(width: 6),
-                          const Text('Votre numéro reste privé et sécurisé',
+                          Text(BrikoolLocale.text('Votre numéro reste privé et sécurisé', ar: 'رقمك محمي وسري', darija: 'رقمك باقي سري ومحمي'),
                               style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF89918B))),
                         ]),
                       ),
