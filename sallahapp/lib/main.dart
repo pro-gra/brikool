@@ -15,11 +15,9 @@ import 'models/technician_profile.dart';
 import 'features/client/presentation/bloc/language_cubit.dart';
 import 'features/client/presentation/screens/client_shell.dart';
 import 'features/auth/presentation/screens/phone_login_screen.dart';
-import 'features/auth/presentation/screens/welcome_screen.dart';
 import 'features/auth/presentation/screens/role_selection_screen.dart';
 import 'features/auth/presentation/screens/client_onboarding_screen.dart';
 import 'features/technician/presentation/screens/technician_onboarding_screen.dart';
-import 'features/technician/presentation/screens/wallet_deposit_screen.dart';
 import 'features/technician/presentation/screens/technician_shell.dart';
 import 'features/admin/presentation/screens/admin_shell.dart';
 import 'models/company_profile.dart';
@@ -283,7 +281,7 @@ class _AuthGateState extends State<AuthGate> {
           return const _LoadingScaffold();
         }
         final user = authSnapshot.data;
-        if (user == null) return const WelcomeScreen();
+        if (user == null) return const PhoneLoginScreen();
         if (_lastEnsuredUid != user.uid) {
           _lastEnsuredUid = user.uid;
           FirestoreService().ensureUserProfile(user, preferredLang: 'ar');
