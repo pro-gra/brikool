@@ -17,9 +17,10 @@ class FirestoreService {
   CollectionReference<Map<String, dynamic>> get _walletTxns => _db.collection('wallet_transactions');
 
   static const List<String> activeStatuses = ['pending', 'accepted', 'en_route', 'in_progress'];
-  static const double commissionRate = 0.15;
-  static const double companyCommissionRate = 0.08;
-  static const double minBalanceToGoOnline = 50;
+  static const bool freeLaunch = true;
+  static const double commissionRate = freeLaunch ? 0.0 : 0.15;
+  static const double companyCommissionRate = freeLaunch ? 0.0 : 0.08;
+  static const double minBalanceToGoOnline = freeLaunch ? 0.0 : 50.0;
   static const double lowBalanceBlockThreshold = 10;
 
   // ---------------------------------------------------------------
@@ -551,10 +552,13 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'pending') {
         throw Exception('Cette demande n\'est plus disponible.');
       }
-      final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
       final budget = (requestSnap.data()!['budgetMAD'] as num).toDouble();
-      final commission = double.parse((budget * commissionRate).toStringAsFixed(2));
-      if (balance < commission) {
+      // Free-launch mode: technicians can accept jobs without a wallet balance.
+      final commission = freeLaunch
+          ? 0.0
+          : double.parse((budget * commissionRate).toStringAsFixed(2));
+      final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
+      if (!freeLaunch && balance < commission) {
         throw Exception('Solde insuffisant pour couvrir la commission.');
       }
       transaction.update(requestRef, {
@@ -576,25 +580,29 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'accepted') {
         throw Exception('Statut de la demande invalide.');
       }
-      final commission = (requestSnap.data()!['commissionMAD'] as num).toDouble();
-      final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
-      if (balance < commission) {
-        throw Exception('Solde insuffisant pour couvrir la commission.');
+      // Going en route never charges the technician in free-launch mode.
+      final commission = freeLaunch
+          ? 0.0
+          : ((requestSnap.data()!['commissionMAD'] as num?)?.toDouble() ?? 0.0);
+      if (!freeLaunch) {
+        final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
+        if (balance < commission) {
+          throw Exception('Solde insuffisant pour couvrir la commission.');
+        }
+        transaction.update(techRef, {'walletBalance': balance - commission});
+        final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
+        transaction.set(_walletTxns.doc(txnId), {
+          'txnId': txnId,
+          'techId': techId,
+          'amountMAD': commission,
+          'type': 'commission_deduction',
+          'description': 'Commission for request $requestId',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
       }
-      final newBalance = double.parse((balance - commission).toStringAsFixed(2));
-      transaction.update(requestRef, {'status': 'en_route'});
-      transaction.update(techRef, {
-        'walletBalance': newBalance,
-        'isOnline': newBalance >= lowBalanceBlockThreshold,
-      });
-      final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
-      transaction.set(_walletTxns.doc(txnId), {
-        'txnId': txnId,
-        'techId': techId,
-        'amountMAD': commission,
-        'type': 'commission_deduction',
-        'description': 'Commission for request $requestId',
-        'timestamp': FieldValue.serverTimestamp(),
+      transaction.update(requestRef, {
+        'status': 'en_route',
+        'commissionMAD': commission,
       });
     });
   }
@@ -863,27 +871,32 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       if (data['otpCode'] != enteredOtp) throw Exception('Code OTP incorrect');
       if (data['status'] != 'confirmed') throw Exception('Statut de la demande invalide.');
       final companyId = data['companyId'] as String;
-      final companyDocRef = _companies.doc(companyId);
-      final companySnap = await transaction.get(companyDocRef);
+      final companyRef = _companies.doc(companyId);
+      final companySnap = await transaction.get(companyRef);
       final price = (data['quotedPriceMAD'] as num?)?.toDouble() ?? 0;
-      final commission = double.parse((price * companyCommissionRate).toStringAsFixed(2));
-      final balance = (companySnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
-      if (balance < commission) throw Exception('Solde insuffisant pour couvrir la commission.');
-      final newBalance = double.parse((balance - commission).toStringAsFixed(2));
+      final commission = freeLaunch
+          ? 0.0
+          : double.parse((price * companyCommissionRate).toStringAsFixed(2));
+      if (!freeLaunch) {
+        final balance = (companySnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
+        if (balance < commission) {
+          throw Exception('Solde insuffisant pour couvrir la commission.');
+        }
+        transaction.update(companyRef, {'walletBalance': balance - commission});
+        final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
+        transaction.set(_walletTxns.doc(txnId), {
+          'txnId': txnId,
+          'companyId': companyId,
+          'amountMAD': commission,
+          'type': 'commission_deduction',
+          'description': 'Commission for project $requestId',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
       transaction.update(requestRef, {
         'status': 'in_progress',
         'startedAt': FieldValue.serverTimestamp(),
         'commissionMAD': commission,
-      });
-      transaction.update(companyDocRef, {'walletBalance': newBalance});
-      final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
-      transaction.set(_walletTxns.doc(txnId), {
-        'txnId': txnId,
-        'companyId': companyId,
-        'amountMAD': commission,
-        'type': 'commission_deduction',
-        'description': 'Commission for project $requestId',
-        'timestamp': FieldValue.serverTimestamp(),
       });
     });
   }

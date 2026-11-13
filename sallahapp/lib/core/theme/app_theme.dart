@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Brikol.ma design tokens — all screens reference these constants.
+/// Brikool design system — shared tokens for a consistent, modern experience.
 /// Changing a value here propagates everywhere instantly.
 abstract class AppColors {
   // ── Brand
-  static const primary       = Color(0xFF0e8050); // Brikol green
-  static const primaryDark   = Color(0xFF0a5c38);
-  static const primaryLight  = Color(0xFFe6f4ed);
-  static const accent        = Color(0xFF0a6e8a); // Brikol teal-blue
+  static const primary       = Color(0xFF0F9D58); // Brikool green
+  static const primaryDark   = Color(0xFF087443);
+  static const primaryLight  = Color(0xFFE8F7EF);
+  static const accent        = Color(0xFF167D74); // Brikool teal
   static const gold          = Color(0xFFc9a44a); // tagline gold
 
   // ── Category accent colors used on home_screen service grid
@@ -30,14 +30,14 @@ abstract class AppColors {
   static const dangerLight   = Color(0xFFfdeaea);
 
   // ── Surface
-  static const background    = Color(0xFFf7f8f6);
+  static const background    = Color(0xFFF5F8F6);
   static const surface       = Color(0xFFffffff);
-  static const border        = Color(0xFFe8ebe8);
+  static const border        = Color(0xFFE3ECE6);
 
   // ── Text
-  static const textPrimary   = Color(0xFF0d1f14);
-  static const textSecondary = Color(0xFF4a6358);
-  static const textMuted     = Color(0xFF8fa899);
+  static const textPrimary   = Color(0xFF14251B);
+  static const textSecondary = Color(0xFF52685B);
+  static const textMuted     = Color(0xFF879B8E);
 
   // ── Splash / loading
   static const splashBg      = Color(0xFF050f0a);
