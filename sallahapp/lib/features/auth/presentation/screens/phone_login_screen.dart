@@ -176,15 +176,15 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                       const SizedBox(height: 28),
 
                       // ── Welcome ────────────────────────────────────
-                      const Center(
-                        child: Text('Bienvenue sur brikool',
+                      Center(
+                        child: Text(BrikoolLocale.text('Bienvenue sur brikool', ar: 'مرحباً بك في بريكول', darija: 'مرحبا بيك فبريكول'),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 27, height: 1.1, fontWeight: FontWeight.w900,
                                 letterSpacing: -0.8, color: Color(0xFF17201A))),
                       ),
                       const SizedBox(height: 10),
-                      const Center(
-                        child: Text('Des professionnels fiables,\ndirectement à votre porte.',
+                      Center(
+                        child: Text(BrikoolLocale.text('Des professionnels fiables,\ndirectement à votre porte.', ar: 'محترفون موثوقون، مباشرة إلى باب منزلك.', darija: 'تقنيين ثقة، حتى لباب دارك.'),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF707A73), fontWeight: FontWeight.w500)),
                       ),
