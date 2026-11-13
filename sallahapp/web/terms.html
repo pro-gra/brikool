@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conditions d'utilisation — Brikol.ma</title>
+  <meta name="description" content="Conditions générales d'utilisation de Brikol.ma" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #0e8050; --primary-dark: #0a6040; --primary-light: #e6f4ed;
+      --text: #0c1c13; --text-secondary: #4a5e52; --text-muted: #8a9e92;
+      --bg: #f7faf8; --surface: #ffffff; --border: #e2ece6;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    body[dir="rtl"] { font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo-text { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-back { font-size: 13px; color: var(--text-secondary); text-decoration: none; font-weight: 500; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); transition: all .2s; }
+    .nav-back:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .lang-switcher { display: flex; gap: 4px; }
+    .lang-btn { padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all .2s; }
+    .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .lang-btn:hover:not(.active) { background: var(--primary-light); color: var(--primary); }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+    .doc-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 20px; padding: 36px; color: white; margin-bottom: 40px; }
+    .doc-badge { display: inline-block; background: rgba(255,255,255,0.2); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 99px; margin-bottom: 14px; }
+    .doc-title { font-size: clamp(24px, 4vw, 36px); font-weight: 900; margin-bottom: 8px; }
+    .doc-meta { font-size: 13px; opacity: .8; }
+    .toc { background: white; border-radius: 16px; padding: 24px; border: 1.5px solid var(--border); margin-bottom: 36px; }
+    .toc-title { font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+    .toc ol { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+    .toc a { color: var(--primary); text-decoration: none; font-size: 14px; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; }
+    .doc-section { margin-bottom: 36px; }
+    .section-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: var(--primary-light); color: var(--primary); font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+    h2 { font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    h3 { font-size: 16px; font-weight: 700; margin: 20px 0 8px; color: var(--text); }
+    p { font-size: 15px; color: var(--text-secondary); margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; }
+    li { font-size: 15px; color: var(--text-secondary); margin-bottom: 6px; }
+    strong { color: var(--text); font-weight: 700; }
+    .highlight-box { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0; }
+    .highlight-box p { margin: 0; color: var(--primary-dark); font-weight: 500; }
+    .warning-box { background: #fff8e6; border-left: 4px solid #c9a44a; border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0; }
+    .warning-box p { margin: 0; color: #7a5c1a; font-weight: 500; }
+    .contact-card { background: white; border-radius: 16px; padding: 24px; border: 1.5px solid var(--border); display: flex; gap: 16px; align-items: flex-start; }
+    .contact-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .contact-email { color: var(--primary); font-weight: 700; }
+    .doc-footer { text-align: center; padding: 32px 0 0; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 48px; }
+    .doc-footer a { color: var(--primary); text-decoration: none; }
+    .lang-content { display: none; }
+    .lang-content.active { display: block; }
+    [dir="rtl"] .toc ol { padding-right: 20px; padding-left: 0; }
+    [dir="rtl"] ul, [dir="rtl"] ol { padding-right: 20px; padding-left: 0; }
+    [dir="rtl"] .highlight-box, [dir="rtl"] .warning-box { border-left: none; border-right: 4px solid var(--primary); border-radius: 12px 0 0 12px; }
+    [dir="rtl"] .warning-box { border-right-color: #c9a44a; }
+    @media (max-width: 600px) { .page-wrapper { padding: 24px 16px 60px; } .doc-header { padding: 24px; } nav { padding: 0 16px; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/landing.html">
+    <img src="icons/Icon-192.png" alt="Brikol.ma" />
+    <span class="nav-logo-text">Brikol.ma</span>
+  </a>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('fr', this)">FR</button>
+      <button class="lang-btn" onclick="setLang('ar', this)">AR</button>
+      <button class="lang-btn" onclick="setLang('en', this)">EN</button>
+    </div>
+    <a href="/landing.html" class="nav-back">&larr; Retour</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+<!-- ══ FRENCH ══ -->
+<div class="lang-content active" id="lang-fr">
+  <div class="doc-header">
+    <div class="doc-badge">&#128196; Document l&eacute;gal</div>
+    <div class="doc-title">Conditions G&eacute;n&eacute;rales d&apos;Utilisation</div>
+    <div class="doc-meta">Brikol.ma &middot; Derni&egrave;re mise &agrave; jour : Ao&ucirc;t 2026 &middot; Version 1.0</div>
+  </div>
+  <div class="toc">
+    <div class="toc-title">Table des mati&egrave;res</div>
+    <ol>
+      <li><a href="#fr-1">Pr&eacute;sentation de la plateforme</a></li>
+      <li><a href="#fr-2">Acceptation des conditions</a></li>
+      <li><a href="#fr-3">Inscription et compte utilisateur</a></li>
+      <li><a href="#fr-4">Services propos&eacute;s</a></li>
+      <li><a href="#fr-5">Obligations des utilisateurs</a></li>
+      <li><a href="#fr-6">Obligations des techniciens</a></li>
+      <li><a href="#fr-7">Tarification et commissions</a></li>
+      <li><a href="#fr-8">Syst&egrave;me OTP et s&eacute;curit&eacute;</a></li>
+      <li><a href="#fr-9">Responsabilit&eacute;s</a></li>
+      <li><a href="#fr-10">Propri&eacute;t&eacute; intellectuelle</a></li>
+      <li><a href="#fr-11">R&eacute;siliation</a></li>
+      <li><a href="#fr-12">Droit applicable</a></li>
+      <li><a href="#fr-13">Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="fr-1">
+    <h2><span class="section-num">1</span> Pr&eacute;sentation de la plateforme</h2>
+    <p>Brikol.ma est une plateforme marocaine de mise en relation entre clients et techniciens qualifi&eacute;s pour des interventions &agrave; domicile (plomberie, &eacute;lectricit&eacute;, climatisation, automobile, et autres services).</p>
+    <p>La soci&eacute;t&eacute; exploitant Brikol.ma est immatricul&eacute;e au Maroc. L&apos;application est accessible via le web sur <strong>brikol.ma</strong> et en application mobile.</p>
+    <div class="highlight-box"><p>Brikol.ma agit en tant qu&apos;interm&eacute;diaire technique uniquement. Nous ne sommes pas employeurs des techniciens et ne garantissons pas la qualit&eacute; des prestations effectu&eacute;es.</p></div>
+  </div>
+
+  <div class="doc-section" id="fr-2">
+    <h2><span class="section-num">2</span> Acceptation des conditions</h2>
+    <p>En acc&eacute;dant &agrave; Brikol.ma et en cr&eacute;ant un compte, vous acceptez sans r&eacute;serve les pr&eacute;sentes Conditions G&eacute;n&eacute;rales d&apos;Utilisation (CGU).</p>
+    <p>Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser notre plateforme. Nous nous r&eacute;servons le droit de modifier ces CGU &agrave; tout moment.</p>
+  </div>
+
+  <div class="doc-section" id="fr-3">
+    <h2><span class="section-num">3</span> Inscription et compte utilisateur</h2>
+    <h3>3.1 Conditions d&apos;inscription</h3>
+    <ul>
+      <li>&Ecirc;tre &acirc;g&eacute; d&apos;au moins <strong>18 ans</strong></li>
+      <li>Poss&eacute;der un num&eacute;ro de t&eacute;l&eacute;phone marocain valide</li>
+      <li>Fournir des informations exactes et compl&egrave;tes</li>
+      <li>Maintenir la confidentialit&eacute; de vos identifiants</li>
+    </ul>
+    <h3>3.2 V&eacute;rification des techniciens</h3>
+    <p>Les techniciens doivent d&eacute;montrer leur exp&eacute;rience professionnelle dans leur domaine. Brikol.ma se r&eacute;serve le droit d&apos;approuver ou refuser tout compte technicien.</p>
+    <h3>3.3 Compte unique</h3>
+    <p>Chaque personne ne peut poss&eacute;der qu&apos;un seul compte. La cr&eacute;ation de comptes multiples est interdite et entra&icirc;ne la suspension imm&eacute;diate.</p>
+  </div>
+
+  <div class="doc-section" id="fr-4">
+    <h2><span class="section-num">4</span> Services propos&eacute;s</h2>
+    <ul>
+      <li><strong>Services SOS (urgences)</strong> : intervention rapide, le client publie une demande avec budget, les techniciens font des offres</li>
+      <li><strong>Grands Services (entreprises)</strong> : devis pour travaux importants</li>
+      <li><strong>Services planifi&eacute;s</strong> : intervention programm&eacute;e &agrave; une date et heure pr&eacute;cises</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="fr-5">
+    <h2><span class="section-num">5</span> Obligations des utilisateurs (clients)</h2>
+    <ul>
+      <li>D&eacute;crire honn&ecirc;tement le probl&egrave;me et fournir un budget r&eacute;aliste</li>
+      <li>&Ecirc;tre pr&eacute;sent lors de l&apos;intervention ou d&eacute;signer un repr&eacute;sentant</li>
+      <li>Valider le d&eacute;but de l&apos;intervention avec le code OTP fourni</li>
+      <li>Ne pas tenter de contourner la plateforme pour payer directement le technicien</li>
+      <li>&Eacute;valuer honn&ecirc;tement le technicien apr&egrave;s l&apos;intervention</li>
+      <li>Ne pas publier de fausses demandes</li>
+    </ul>
+    <div class="warning-box"><p>&#9888;&#65039; Toute tentative de fraude, de contournement du syst&egrave;me de paiement ou de fausse &eacute;valuation entra&icirc;ne la suspension permanente du compte.</p></div>
+  </div>
+
+  <div class="doc-section" id="fr-6">
+    <h2><span class="section-num">6</span> Obligations des techniciens</h2>
+    <ul>
+      <li>Justifier d&apos;une exp&eacute;rience professionnelle dans les services propos&eacute;s</li>
+      <li>Maintenir un solde suffisant dans leur portefeuille pour couvrir les commissions</li>
+      <li>Se pr&eacute;senter &agrave; l&apos;heure convenue et r&eacute;aliser l&apos;intervention professionnellement</li>
+      <li>Ne pas demander de paiement suppl&eacute;mentaire non convenu &agrave; l&apos;avance</li>
+      <li>Respecter le code de conduite Brikol.ma</li>
+      <li>Informer la plateforme en cas d&apos;annulation avec un pr&eacute;avis raisonnable</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="fr-7">
+    <h2><span class="section-num">7</span> Tarification et commissions</h2>
+    <h3>7.1 Pour les techniciens (particuliers)</h3>
+    <ul>
+      <li>Commission de <strong>10%</strong> sur le prix de chaque intervention SOS</li>
+      <li>La commission est pr&eacute;lev&eacute;e automatiquement au moment o&ugrave; le technicien se met &laquo; en route &raquo;</li>
+      <li>Le solde minimum pour rester en ligne est de <strong>50 MAD</strong></li>
+    </ul>
+    <h3>7.2 Pour les entreprises partenaires</h3>
+    <ul>
+      <li>Commission de <strong>9,5%</strong> sur les projets des entreprises partenaires</li>
+    </ul>
+    <h3>7.3 Pour les clients</h3>
+    <p>L&apos;utilisation de Brikol.ma est <strong>gratuite</strong> pour les clients. Le prix pay&eacute; est celui n&eacute;goci&eacute; directement avec le technicien.</p>
+    <div class="highlight-box"><p>Les prix sont fix&eacute;s avant le d&eacute;but de l&apos;intervention. Aucun suppl&eacute;ment ne peut &ecirc;tre demand&eacute; apr&egrave;s validation du code OTP.</p></div>
+  </div>
+
+  <div class="doc-section" id="fr-8">
+    <h2><span class="section-num">8</span> Syst&egrave;me OTP et s&eacute;curit&eacute;</h2>
+    <p>Le code OTP (One-Time Password) est un m&eacute;canisme de s&eacute;curit&eacute; qui garantit que :</p>
+    <ul>
+      <li>Le client confirme la pr&eacute;sence et l&apos;identit&eacute; du technicien</li>
+      <li>L&apos;intervention ne peut pas d&eacute;marrer sans accord explicite du client</li>
+      <li>La commission est pr&eacute;lev&eacute;e uniquement au d&eacute;marrage r&eacute;el de l&apos;intervention</li>
+    </ul>
+    <p>Le code OTP est &agrave; usage unique et expire automatiquement.</p>
+  </div>
+
+  <div class="doc-section" id="fr-9">
+    <h2><span class="section-num">9</span> Responsabilit&eacute;s</h2>
+    <p>Brikol.ma ne peut &ecirc;tre tenu responsable de :</p>
+    <ul>
+      <li>La qualit&eacute; des prestations r&eacute;alis&eacute;es par les techniciens</li>
+      <li>Les dommages caus&eacute;s lors d&apos;une intervention</li>
+      <li>Les litiges entre clients et techniciens</li>
+      <li>Les interruptions de service pour maintenance</li>
+    </ul>
+    <p>En cas de probl&egrave;me, les clients peuvent signaler un technicien via la fonctionnalit&eacute; &laquo; Signalement &raquo; int&eacute;gr&eacute;e. Brikol.ma s&apos;engage &agrave; traiter tous les signalements dans un d&eacute;lai de <strong>48 heures ouvrables</strong>.</p>
+  </div>
+
+  <div class="doc-section" id="fr-10">
+    <h2><span class="section-num">10</span> Propri&eacute;t&eacute; intellectuelle</h2>
+    <p>L&apos;ensemble des &eacute;l&eacute;ments de la plateforme Brikol.ma (logo, design, code, contenu) est prot&eacute;g&eacute; par les droits de propri&eacute;t&eacute; intellectuelle marocains et internationaux. Toute reproduction sans autorisation &eacute;crite est strictement interdite.</p>
+  </div>
+
+  <div class="doc-section" id="fr-11">
+    <h2><span class="section-num">11</span> R&eacute;siliation</h2>
+    <p>Brikol.ma se r&eacute;serve le droit de suspendre ou supprimer tout compte en cas de violation des CGU, comportement frauduleux ou fausses informations.</p>
+    <p>Les utilisateurs peuvent supprimer leur compte &agrave; tout moment depuis les param&egrave;tres de l&apos;application.</p>
+  </div>
+
+  <div class="doc-section" id="fr-12">
+    <h2><span class="section-num">12</span> Droit applicable</h2>
+    <p>Les pr&eacute;sentes CGU sont r&eacute;gies par le droit marocain. En cas de litige, les tribunaux comp&eacute;tents de <strong>Casablanca, Maroc</strong> seront seuls comp&eacute;tents.</p>
+  </div>
+
+  <div class="doc-section" id="fr-13">
+    <h2><span class="section-num">13</span> Contact</h2>
+    <div class="contact-card">
+      <div class="contact-icon">&#9993;&#65039;</div>
+      <div>
+        <strong>Brikol.ma &mdash; Service juridique</strong><br/>
+        <span class="contact-email">legal@brikol.ma</span><br/>
+        <span style="font-size:13px;color:var(--text-muted)">R&eacute;ponse sous 48h ouvrables</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARABIC ══ -->
+<div class="lang-content" id="lang-ar">
+  <div class="doc-header">
+    <div class="doc-badge">&#128196; وثيقة قانونية</div>
+    <div class="doc-title">شروط الاستخدام العامة</div>
+    <div class="doc-meta">Brikol.ma · آخر تحديث: أغسطس 2026 · الإصدار 1.0</div>
+  </div>
+  <div class="toc">
+    <div class="toc-title">فهرس المحتويات</div>
+    <ol>
+      <li><a href="#ar-1">تقديم المنصة</a></li>
+      <li><a href="#ar-2">قبول الشروط</a></li>
+      <li><a href="#ar-3">التسجيل وحساب المستخدم</a></li>
+      <li><a href="#ar-4">الخدمات المقدمة</a></li>
+      <li><a href="#ar-5">التزامات المستخدمين</a></li>
+      <li><a href="#ar-6">التزامات التقنيين</a></li>
+      <li><a href="#ar-7">التسعير والعمولات</a></li>
+      <li><a href="#ar-8">نظام OTP والأمان</a></li>
+      <li><a href="#ar-9">المسؤوليات</a></li>
+      <li><a href="#ar-10">الملكية الفكرية</a></li>
+      <li><a href="#ar-11">إنهاء الخدمة</a></li>
+      <li><a href="#ar-12">القانون المطبق</a></li>
+      <li><a href="#ar-13">التواصل</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="ar-1">
+    <h2><span class="section-num">١</span> تقديم المنصة</h2>
+    <p>Brikol.ma هي منصة مغربية لربط العملاء بالتقنيين المؤهلين للتدخلات المنزلية (السباكة، الكهرباء، التكييف، السيارات، وخدمات أخرى).</p>
+    <div class="highlight-box"><p>تعمل Brikol.ma كوسيط تقني فقط. نحن لسنا أصحاب عمل للتقنيين ولا نضمن جودة الخدمات المقدمة.</p></div>
+  </div>
+
+  <div class="doc-section" id="ar-2">
+    <h2><span class="section-num">٢</span> قبول الشروط</h2>
+    <p>بالوصول إلى Brikol.ma وإنشاء حساب، فإنك توافق دون تحفظ على شروط الاستخدام العامة هذه.</p>
+  </div>
+
+  <div class="doc-section" id="ar-3">
+    <h2><span class="section-num">٣</span> التسجيل وحساب المستخدم</h2>
+    <ul>
+      <li>يجب أن يكون عمرك <strong>18 سنة على الأقل</strong></li>
+      <li>امتلاك رقم هاتف مغربي صالح</li>
+      <li>تقديم معلومات صحيحة وكاملة</li>
+      <li>الحفاظ على سرية بيانات الدخول</li>
+    </ul>
+    <p>يجب على التقنيين إثبات خبرتهم المهنية في مجالهم. تحتفظ Brikol.ma بحق قبول أو رفض أي حساب تقني.</p>
+  </div>
+
+  <div class="doc-section" id="ar-4">
+    <h2><span class="section-num">٤</span> الخدمات المقدمة</h2>
+    <ul>
+      <li><strong>خدمات الطوارئ (SOS)</strong>: تدخل سريع، ينشر العميل طلبًا بميزانية ويتنافس التقنيون بعروضهم</li>
+      <li><strong>الخدمات الكبرى (الشركات)</strong>: عروض أسعار للأعمال الكبيرة</li>
+      <li><strong>الخدمات المجدولة</strong>: تدخل مبرمج في تاريخ ووقت محددين</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="ar-5">
+    <h2><span class="section-num">٥</span> التزامات المستخدمين (العملاء)</h2>
+    <ul>
+      <li>وصف المشكلة بصدق وتحديد ميزانية واقعية</li>
+      <li>التواجد عند التدخل أو تعيين ممثل</li>
+      <li>التحقق من بداية التدخل عبر رمز OTP</li>
+      <li>عدم محاولة تجاوز المنصة للدفع المباشر للتقني</li>
+      <li>تقييم التقني بصدق بعد التدخل</li>
+    </ul>
+    <div class="warning-box"><p>⚠️ أي محاولة احتيال أو التحايل على نظام الدفع يؤدي إلى تعليق الحساب نهائيًا.</p></div>
+  </div>
+
+  <div class="doc-section" id="ar-6">
+    <h2><span class="section-num">٦</span> التزامات التقنيين</h2>
+    <ul>
+      <li>إثبات الخبرة المهنية في الخدمات المقدمة</li>
+      <li>الحفاظ على رصيد كافٍ لتغطية العمولات</li>
+      <li>الحضور في الموعد المحدد وإنجاز التدخل باحترافية</li>
+      <li>عدم طلب مدفوعات إضافية غير متفق عليها مسبقًا</li>
+      <li>احترام قواعد سلوك Brikol.ma</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="ar-7">
+    <h2><span class="section-num">٧</span> التسعير والعمولات</h2>
+    <h3>٧.١ للتقنيين الأفراد</h3>
+    <ul>
+      <li>عمولة <strong>10%</strong> على سعر كل تدخل طارئ (SOS)</li>
+      <li>تُخصم العمولة تلقائيًا عند انطلاق التقني</li>
+      <li>الحد الأدنى للرصيد للبقاء متصلاً: <strong>50 درهم</strong></li>
+    </ul>
+    <h3>٧.٢ للشركات الشريكة</h3>
+    <ul>
+      <li>عمولة <strong>9.5%</strong> على مشاريع الشركات الشريكة</li>
+    </ul>
+    <p>استخدام Brikol.ma <strong>مجاني للعملاء</strong> تمامًا.</p>
+  </div>
+
+  <div class="doc-section" id="ar-8">
+    <h2><span class="section-num">٨</span> نظام OTP والأمان</h2>
+    <ul>
+      <li>تأكيد العميل لحضور وهوية التقني</li>
+      <li>عدم بدء أي تدخل بدون موافقة صريحة من العميل</li>
+      <li>خصم العمولة فقط عند بدء التدخل الفعلي</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="ar-9">
+    <h2><span class="section-num">٩</span> المسؤوليات</h2>
+    <p>لا تتحمل Brikol.ma المسؤولية عن جودة الخدمات أو الأضرار الناجمة عن التدخل أو النزاعات بين الأطراف.</p>
+    <p>يمكن الإبلاغ عن أي تقني عبر ميزة "الإبلاغ" في التطبيق. تلتزم Brikol.ma بمعالجة جميع البلاغات في غضون <strong>48 ساعة عمل</strong>.</p>
+  </div>
+
+  <div class="doc-section" id="ar-10">
+    <h2><span class="section-num">١٠</span> الملكية الفكرية</h2>
+    <p>جميع عناصر منصة Brikol.ma محمية بموجب قوانين الملكية الفكرية المغربية والدولية.</p>
+  </div>
+
+  <div class="doc-section" id="ar-11">
+    <h2><span class="section-num">١١</span> إنهاء الخدمة</h2>
+    <p>تحتفظ Brikol.ma بحق تعليق أو حذف أي حساب في حالة انتهاك هذه الشروط أو السلوك الاحتيالي.</p>
+  </div>
+
+  <div class="doc-section" id="ar-12">
+    <h2><span class="section-num">١٢</span> القانون المطبق</h2>
+    <p>تخضع هذه الشروط للقانون المغربي. في حالة النزاع، تختص المحاكم المختصة في <strong>الدار البيضاء، المغرب</strong>.</p>
+  </div>
+
+  <div class="doc-section" id="ar-13">
+    <h2><span class="section-num">١٣</span> التواصل</h2>
+    <div class="contact-card">
+      <div class="contact-icon">✉️</div>
+      <div>
+        <strong>Brikol.ma — القسم القانوني</strong><br/>
+        <span class="contact-email">legal@brikol.ma</span><br/>
+        <span style="font-size:13px;color:var(--text-muted)">رد خلال 48 ساعة عمل</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ENGLISH ══ -->
+<div class="lang-content" id="lang-en">
+  <div class="doc-header">
+    <div class="doc-badge">&#128196; Legal Document</div>
+    <div class="doc-title">Terms of Service</div>
+    <div class="doc-meta">Brikol.ma &middot; Last updated: August 2026 &middot; Version 1.0</div>
+  </div>
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ol>
+      <li><a href="#en-1">About the Platform</a></li>
+      <li><a href="#en-2">Acceptance of Terms</a></li>
+      <li><a href="#en-3">Registration &amp; User Account</a></li>
+      <li><a href="#en-4">Services Offered</a></li>
+      <li><a href="#en-5">Client Obligations</a></li>
+      <li><a href="#en-6">Technician Obligations</a></li>
+      <li><a href="#en-7">Pricing &amp; Commissions</a></li>
+      <li><a href="#en-8">OTP System &amp; Security</a></li>
+      <li><a href="#en-9">Liability</a></li>
+      <li><a href="#en-10">Intellectual Property</a></li>
+      <li><a href="#en-11">Termination</a></li>
+      <li><a href="#en-12">Governing Law</a></li>
+      <li><a href="#en-13">Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="en-1">
+    <h2><span class="section-num">1</span> About the Platform</h2>
+    <p>Brikol.ma is a Moroccan platform connecting clients with experienced technicians for home and automotive services (plumbing, electrical, air conditioning, and more).</p>
+    <div class="highlight-box"><p>Brikol.ma acts as a technical intermediary only. We are not employers of technicians and do not guarantee the quality of services performed.</p></div>
+  </div>
+
+  <div class="doc-section" id="en-2">
+    <h2><span class="section-num">2</span> Acceptance of Terms</h2>
+    <p>By accessing Brikol.ma and creating an account, you unconditionally agree to these Terms of Service. If you do not agree, please do not use our platform.</p>
+  </div>
+
+  <div class="doc-section" id="en-3">
+    <h2><span class="section-num">3</span> Registration &amp; User Account</h2>
+    <ul>
+      <li>Be at least <strong>18 years old</strong></li>
+      <li>Have a valid Moroccan phone number</li>
+      <li>Provide accurate and complete information</li>
+      <li>Keep your credentials confidential</li>
+    </ul>
+    <p>Technicians must demonstrate relevant professional experience in their field. Brikol.ma reserves the right to approve or reject any technician account.</p>
+  </div>
+
+  <div class="doc-section" id="en-4">
+    <h2><span class="section-num">4</span> Services Offered</h2>
+    <ul>
+      <li><strong>SOS Services (emergencies)</strong>: rapid response, client posts a request with budget, technicians bid</li>
+      <li><strong>Grand Services (companies)</strong>: quotes for large projects</li>
+      <li><strong>Scheduled Services</strong>: planned intervention at a specific date and time</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="en-5">
+    <h2><span class="section-num">5</span> Client Obligations</h2>
+    <ul>
+      <li>Honestly describe the problem and set a realistic budget</li>
+      <li>Be present during the intervention or designate a representative</li>
+      <li>Validate the start of the intervention with the OTP code</li>
+      <li>Not attempt to bypass the platform for direct payment</li>
+      <li>Honestly evaluate the technician after the service</li>
+    </ul>
+    <div class="warning-box"><p>&#9888;&#65039; Any fraud attempt or circumvention of the payment system results in permanent account suspension.</p></div>
+  </div>
+
+  <div class="doc-section" id="en-6">
+    <h2><span class="section-num">6</span> Technician Obligations</h2>
+    <ul>
+      <li>Demonstrate relevant professional experience in the services offered</li>
+      <li>Maintain sufficient wallet balance to cover commissions</li>
+      <li>Arrive on time and perform the work professionally</li>
+      <li>Not request additional payment not agreed upon in advance</li>
+      <li>Comply with Brikol.ma&apos;s code of conduct</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="en-7">
+    <h2><span class="section-num">7</span> Pricing &amp; Commissions</h2>
+    <h3>7.1 For individual technicians</h3>
+    <ul>
+      <li><strong>10%</strong> commission on each SOS intervention price</li>
+      <li>Commission is deducted automatically when the technician goes &ldquo;en route&rdquo;</li>
+      <li>Minimum balance to stay online: <strong>50 MAD</strong></li>
+    </ul>
+    <h3>7.2 For partner companies</h3>
+    <ul>
+      <li><strong>9.5%</strong> commission on partner company projects</li>
+    </ul>
+    <h3>7.3 For clients</h3>
+    <p>Brikol.ma is <strong>completely free for clients</strong>. The price paid is the one negotiated directly with the technician.</p>
+    <div class="highlight-box"><p>Prices are fixed before the start of the intervention. No additional charges can be requested after OTP validation.</p></div>
+  </div>
+
+  <div class="doc-section" id="en-8">
+    <h2><span class="section-num">8</span> OTP System &amp; Security</h2>
+    <ul>
+      <li>The client confirms the technician&apos;s presence and identity</li>
+      <li>No intervention starts without explicit client approval</li>
+      <li>Commission is charged only at the actual start of the intervention</li>
+    </ul>
+  </div>
+
+  <div class="doc-section" id="en-9">
+    <h2><span class="section-num">9</span> Liability</h2>
+    <p>Brikol.ma cannot be held responsible for quality of services, damages caused during interventions, or disputes between clients and technicians.</p>
+    <p>Clients can report technicians via the in-app &ldquo;Report&rdquo; feature. Brikol.ma commits to processing all reports within <strong>48 business hours</strong>.</p>
+  </div>
+
+  <div class="doc-section" id="en-10">
+    <h2><span class="section-num">10</span> Intellectual Property</h2>
+    <p>All elements of the Brikol.ma platform are protected by Moroccan and international intellectual property laws. Any commercial use without prior written consent is strictly prohibited.</p>
+  </div>
+
+  <div class="doc-section" id="en-11">
+    <h2><span class="section-num">11</span> Termination</h2>
+    <p>Brikol.ma reserves the right to suspend or delete any account in case of violation of these Terms or fraudulent behavior. Users may delete their account at any time from the app settings.</p>
+  </div>
+
+  <div class="doc-section" id="en-12">
+    <h2><span class="section-num">12</span> Governing Law</h2>
+    <p>These Terms are governed by Moroccan law. In case of dispute, the competent courts of <strong>Casablanca, Morocco</strong> shall have exclusive jurisdiction.</p>
+  </div>
+
+  <div class="doc-section" id="en-13">
+    <h2><span class="section-num">13</span> Contact</h2>
+    <div class="contact-card">
+      <div class="contact-icon">&#9993;&#65039;</div>
+      <div>
+        <strong>Brikol.ma &mdash; Legal Department</strong><br/>
+        <span class="contact-email">legal@brikol.ma</span><br/>
+        <span style="font-size:13px;color:var(--text-muted)">Response within 48 business hours</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="doc-footer">
+    <p>&copy; 2026 Brikol.ma &middot; <a href="/privacy.html">Politique de confidentialit&eacute;</a> &middot; <a href="/landing.html">Accueil</a></p>
+    <p style="margin-top:8px">Made with &#10084;&#65039; au Maroc &#127474;&#127462;</p>
+  </div>
+</div>
+
+<script>
+  function setLang(lang, btn) {
+    document.querySelectorAll('.lang-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('lang-' + lang).classList.add('active');
+    btn.classList.add('active');
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

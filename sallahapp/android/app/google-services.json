@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "951073788486",
+    "firebase_url": "https://sallahapp-63361-default-rtdb.firebaseio.com",
+    "project_id": "sallahapp-63361",
+    "storage_bucket": "sallahapp-63361.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951073788486:android:372f3a03a31c8fc5adb047",
+        "android_client_info": {
+          "package_name": "com.brikol.ma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG7Cjn3TI5FJIqW7FQaeP58QGInVQEwpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

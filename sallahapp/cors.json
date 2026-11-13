@@ -1,0 +1,13 @@
+[
+  {
+    "origin": [
+      "https://sallahapp-63361.web.app",
+      "https://sallahapp-63361.firebaseapp.com",
+      "http://localhost:*",
+      "http://127.0.0.1:*"
+    ],
+    "method": ["GET", "HEAD"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": ["Content-Type", "Access-Control-Allow-Origin"]
+  }
+]

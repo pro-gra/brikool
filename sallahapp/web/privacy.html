@@ -1,0 +1,529 @@
+﻿<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Politique de confidentialité — Brikol.ma</title>
+  <meta name="description" content="Politique de confidentialité et protection des données de Brikol.ma" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #0e8050; --primary-dark: #0a6040; --primary-light: #e6f4ed;
+      --text: #0c1c13; --text-secondary: #4a5e52; --text-muted: #8a9e92;
+      --bg: #f7faf8; --surface: #ffffff; --border: #e2ece6;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo-text { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-back { font-size: 13px; color: var(--text-secondary); text-decoration: none; font-weight: 500; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); transition: all .2s; }
+    .nav-back:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .lang-switcher { display: flex; gap: 4px; }
+    .lang-btn { padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all .2s; }
+    .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .lang-btn:hover:not(.active) { background: var(--primary-light); color: var(--primary); }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+    .doc-header { background: linear-gradient(135deg, #1a3a5c, #2b5ea7); border-radius: 20px; padding: 36px; color: white; margin-bottom: 40px; }
+    .doc-badge { display: inline-block; background: rgba(255,255,255,0.2); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 99px; margin-bottom: 14px; }
+    .doc-title { font-size: clamp(24px, 4vw, 36px); font-weight: 900; margin-bottom: 8px; }
+    .doc-meta { font-size: 13px; opacity: .8; }
+    .toc { background: white; border-radius: 16px; padding: 24px; border: 1.5px solid var(--border); margin-bottom: 36px; }
+    .toc ol { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+    .toc a { color: var(--primary); text-decoration: none; font-size: 14px; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; }
+    .doc-section { margin-bottom: 36px; }
+    .section-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: #e8edfb; color: #2b5ea7; font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+    h2 { font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    h3 { font-size: 16px; font-weight: 700; margin: 20px 0 8px; color: var(--text); }
+    p { font-size: 15px; color: var(--text-secondary); margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; }
+    li { font-size: 15px; color: var(--text-secondary); margin-bottom: 6px; }
+    strong { color: var(--text); font-weight: 700; }
+    .highlight-box { background: #e8edfb; border-left: 4px solid #2b5ea7; border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0; }
+    .highlight-box p { margin: 0; color: #1a3a5c; font-weight: 500; }
+    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .data-table th { background: #e8edfb; padding: 12px 16px; text-align: left; font-weight: 700; color: #1a3a5c; border: 1px solid var(--border); }
+    .data-table td { padding: 12px 16px; border: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+    .data-table tr:nth-child(even) td { background: var(--bg); }
+    .contact-card { background: white; border-radius: 16px; padding: 24px; border: 1.5px solid var(--border); display: flex; gap: 16px; align-items: flex-start; }
+    .contact-icon { width: 44px; height: 44px; border-radius: 12px; background: #e8edfb; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .contact-email { color: var(--primary); font-weight: 700; }
+    .doc-footer { text-align: center; padding: 32px 0 0; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 48px; }
+    .doc-footer a { color: var(--primary); text-decoration: none; }
+    .lang-content { display: none; }
+    .lang-content.active { display: block; }
+    [dir="rtl"] .toc ol { padding-right: 20px; padding-left: 0; }
+    [dir="rtl"] ul, [dir="rtl"] ol { padding-right: 20px; padding-left: 0; }
+    [dir="rtl"] .highlight-box { border-left: none; border-right: 4px solid #2b5ea7; border-radius: 12px 0 0 12px; }
+    [dir="rtl"] .data-table th { text-align: right; }
+    @media (max-width: 600px) { .page-wrapper { padding: 24px 16px 60px; } nav { padding: 0 16px; } .data-table { font-size: 12px; } .data-table th, .data-table td { padding: 8px 10px; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/landing.html">
+    <img src="icons/Icon-192.png" alt="Brikol.ma" />
+    <span class="nav-logo-text">Brikol.ma</span>
+  </a>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('fr', this)">FR</button>
+      <button class="lang-btn" onclick="setLang('ar', this)">AR</button>
+      <button class="lang-btn" onclick="setLang('en', this)">EN</button>
+    </div>
+    <a href="/landing.html" class="nav-back">← Retour</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- ══════════ FRENCH ══════════ -->
+  <div class="lang-content active" id="lang-fr">
+    <div class="doc-header">
+      <div class="doc-badge">🔒 Protection des données</div>
+      <div class="doc-title">Politique de Confidentialité</div>
+      <div class="doc-meta">Brikol.ma · Dernière mise à jour : Août 2026 · Version 1.0</div>
+    </div>
+    <div class="toc">
+      <div class="toc-title">Table des matières</div>
+      <ol>
+        <li><a href="#fr-p1">Introduction</a></li>
+        <li><a href="#fr-p2">Données collectées</a></li>
+        <li><a href="#fr-p3">Utilisation des données</a></li>
+        <li><a href="#fr-p4">Partage des données</a></li>
+        <li><a href="#fr-p5">Sécurité des données</a></li>
+        <li><a href="#fr-p6">Conservation des données</a></li>
+        <li><a href="#fr-p7">Vos droits</a></li>
+        <li><a href="#fr-p8">Cookies et technologies similaires</a></li>
+        <li><a href="#fr-p9">Notifications push</a></li>
+        <li><a href="#fr-p10">Modifications de la politique</a></li>
+        <li><a href="#fr-p11">Contact DPO</a></li>
+      </ol>
+    </div>
+
+    <div class="doc-section" id="fr-p1">
+      <h2><span class="section-num">1</span> Introduction</h2>
+      <p>Brikol.ma s'engage à protéger la vie privée de ses utilisateurs. La présente Politique de Confidentialité décrit comment nous collectons, utilisons, partageons et protégeons vos données personnelles conformément à la loi marocaine n°09-08 relative à la protection des personnes physiques à l'égard du traitement des données à caractère personnel.</p>
+      <div class="highlight-box"><p>En utilisant Brikol.ma, vous acceptez les pratiques décrites dans cette politique. Nous ne vendons jamais vos données à des tiers.</p></div>
+    </div>
+
+    <div class="doc-section" id="fr-p2">
+      <h2><span class="section-num">2</span> Données collectées</h2>
+      <h3>2.1 Données fournies par vous</h3>
+      <table class="data-table">
+        <thead><tr><th>Type de données</th><th>Exemple</th><th>Obligatoire</th></tr></thead>
+        <tbody>
+          <tr><td>Numéro de téléphone</td><td>+212 6XX XXX XXX</td><td>✅ Oui</td></tr>
+          <tr><td>Nom complet</td><td>Ahmed Benali</td><td>✅ Oui</td></tr>
+          <tr><td>Ville</td><td>Casablanca</td><td>✅ Oui</td></tr>
+          <tr><td>Photo de profil</td><td>Image JPG/PNG</td><td>❌ Non</td></tr>
+          
+          <tr><td>Localisation GPS</td><td>Coordonnées lat/lng</td><td>Pour les urgences</td></tr>
+        </tbody>
+      </table>
+      <h3>2.2 Données collectées automatiquement</h3>
+      <ul>
+        <li>Données d'utilisation (pages visitées, fonctionnalités utilisées)</li>
+        <li>Token Firebase Cloud Messaging (pour les notifications)</li>
+        <li>Informations sur l'appareil (type, système d'exploitation)</li>
+        <li>Adresse IP (anonymisée)</li>
+      </ul>
+      <h3>2.3 Données de transactions</h3>
+      <ul>
+        <li>Historique des commandes et interventions</li>
+        <li>Transactions du portefeuille électronique</li>
+        <li>Évaluations et avis</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="fr-p3">
+      <h2><span class="section-num">3</span> Utilisation des données</h2>
+      <p>Vos données sont utilisées pour :</p>
+      <ul>
+        <li><strong>Fournir le service</strong> : mettre en relation clients et techniciens</li>
+        <li><strong>Authentification</strong> : vérifier votre identité via OTP SMS</li>
+        <li><strong>Notifications</strong> : vous informer des nouvelles demandes, offres et mises à jour</li>
+        <li><strong>Sécurité</strong> : détecter et prévenir les fraudes</li>
+        <li><strong>Amélioration du service</strong> : analyser l'utilisation pour améliorer l'expérience</li>
+        <li><strong>Support client</strong> : répondre à vos questions et résoudre les litiges</li>
+        <li><strong>Conformité légale</strong> : respecter nos obligations légales au Maroc</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="fr-p4">
+      <h2><span class="section-num">4</span> Partage des données</h2>
+      <p>Nous partageons vos données uniquement dans les cas suivants :</p>
+      <h3>4.1 Entre utilisateurs (nécessaire au service)</h3>
+      <ul>
+        <li>Le nom et la ville du client sont visibles par le technicien assigné</li>
+        <li>Le numéro de téléphone du client est visible par le technicien <strong>uniquement après acceptation du devis</strong></li>
+        <li>Le profil public du technicien (nom, note, spécialités) est visible par tous les clients</li>
+      </ul>
+      <h3>4.2 Prestataires techniques</h3>
+      <ul>
+        <li><strong>Firebase (Google)</strong> : authentification, base de données, stockage, notifications push</li>
+        <li><strong>Google Maps</strong> : affichage des cartes et géolocalisation</li>
+      </ul>
+      <h3>4.3 Autorités légales</h3>
+      <p>Nous pouvons divulguer vos données aux autorités marocaines compétentes si la loi l'exige ou en cas d'enquête judiciaire.</p>
+      <div class="highlight-box"><p>Nous ne vendons, ne louons et ne partageons jamais vos données à des fins publicitaires ou commerciales avec des tiers.</p></div>
+    </div>
+
+    <div class="doc-section" id="fr-p5">
+      <h2><span class="section-num">5</span> Sécurité des données</h2>
+      <p>Nous mettons en œuvre les mesures de sécurité suivantes :</p>
+      <ul>
+        <li>Chiffrement des données en transit (HTTPS/TLS)</li>
+        <li>Authentification à deux facteurs via OTP SMS</li>
+        <li>Accès restreint aux données personnelles (principe du moindre privilège)</li>
+        <li>Infrastructure Firebase avec certifications de sécurité internationales</li>
+        <li>Codes OTP à usage unique pour chaque intervention</li>
+      </ul>
+      <p>En cas de violation de données, nous nous engageons à notifier les utilisateurs concernés dans un délai de <strong>72 heures</strong>.</p>
+    </div>
+
+    <div class="doc-section" id="fr-p6">
+      <h2><span class="section-num">6</span> Conservation des données</h2>
+      <table class="data-table">
+        <thead><tr><th>Type de données</th><th>Durée de conservation</th></tr></thead>
+        <tbody>
+          <tr><td>Compte utilisateur actif</td><td>Durée d'utilisation + 3 ans</td></tr>
+          <tr><td>Historique des transactions</td><td>10 ans (obligation légale)</td></tr>
+          <tr><td>Évaluations et avis</td><td>5 ans</td></tr>
+          <tr><td>Données de localisation</td><td>30 jours maximum</td></tr>
+          <tr><td>Logs de sécurité</td><td>1 an</td></tr>
+          <tr><td>Photos de profil</td><td>Jusqu'à suppression par l'utilisateur</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section" id="fr-p7">
+      <h2><span class="section-num">7</span> Vos droits</h2>
+      <p>Conformément à la loi marocaine 09-08, vous disposez des droits suivants :</p>
+      <ul>
+        <li><strong>Droit d'accès</strong> : obtenir une copie de vos données personnelles</li>
+        <li><strong>Droit de rectification</strong> : corriger vos données inexactes</li>
+        <li><strong>Droit à l'effacement</strong> : supprimer votre compte et vos données</li>
+        <li><strong>Droit d'opposition</strong> : vous opposer au traitement de vos données</li>
+        <li><strong>Droit à la portabilité</strong> : recevoir vos données dans un format structuré</li>
+      </ul>
+      <p>Pour exercer ces droits, contactez-nous à <strong>privacy@brikol.ma</strong>. Nous répondrons dans un délai de <strong>30 jours</strong>.</p>
+    </div>
+
+    <div class="doc-section" id="fr-p8">
+      <h2><span class="section-num">8</span> Cookies et technologies similaires</h2>
+      <p>Notre application web utilise :</p>
+      <ul>
+        <li><strong>localStorage / sessionStorage</strong> : pour mémoriser vos préférences et votre session</li>
+        <li><strong>Firebase SDK</strong> : pour l'authentification et les données en temps réel</li>
+      </ul>
+      <p>Nous n'utilisons pas de cookies publicitaires ou de tracking tiers.</p>
+    </div>
+
+    <div class="doc-section" id="fr-p9">
+      <h2><span class="section-num">9</span> Notifications push</h2>
+      <p>Avec votre consentement, nous envoyons des notifications push pour :</p>
+      <ul>
+        <li>Nouvelles demandes d'intervention (techniciens)</li>
+        <li>Mises à jour du statut de votre commande (clients)</li>
+        <li>Messages de chat</li>
+      </ul>
+      <p>Vous pouvez désactiver les notifications à tout moment dans les paramètres de votre navigateur ou appareil.</p>
+    </div>
+
+    <div class="doc-section" id="fr-p10">
+      <h2><span class="section-num">10</span> Modifications</h2>
+      <p>Nous nous réservons le droit de modifier cette politique à tout moment. Les utilisateurs seront notifiés par email ou notification in-app des changements importants. La date de dernière mise à jour est indiquée en haut de ce document.</p>
+    </div>
+
+    <div class="doc-section" id="fr-p11">
+      <h2><span class="section-num">11</span> Contact DPO</h2>
+      <div class="contact-card">
+        <div class="contact-icon">🔒</div>
+        <div>
+          <strong>Délégué à la Protection des Données</strong><br/>
+          <span class="contact-email">privacy@brikol.ma</span><br/>
+          <span style="font-size:13px;color:var(--text-muted)">Réponse sous 30 jours · Brikol.ma, Maroc</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ARABIC ══════════ -->
+  <div class="lang-content" id="lang-ar">
+    <div class="doc-header">
+      <div class="doc-badge">🔒 حماية البيانات</div>
+      <div class="doc-title">سياسة الخصوصية</div>
+      <div class="doc-meta">Brikol.ma · آخر تحديث: أغسطس 2026 · الإصدار 1.0</div>
+    </div>
+    <div class="toc">
+      <div class="toc-title">فهرس المحتويات</div>
+      <ol>
+        <li><a href="#ar-p1">مقدمة</a></li>
+        <li><a href="#ar-p2">البيانات التي نجمعها</a></li>
+        <li><a href="#ar-p3">استخدام البيانات</a></li>
+        <li><a href="#ar-p4">مشاركة البيانات</a></li>
+        <li><a href="#ar-p5">أمان البيانات</a></li>
+        <li><a href="#ar-p6">الاحتفاظ بالبيانات</a></li>
+        <li><a href="#ar-p7">حقوقك</a></li>
+        <li><a href="#ar-p8">الإشعارات</a></li>
+        <li><a href="#ar-p9">التواصل</a></li>
+      </ol>
+    </div>
+
+    <div class="doc-section" id="ar-p1">
+      <h2><span class="section-num">١</span> مقدمة</h2>
+      <p>تلتزم Brikol.ma بحماية خصوصية مستخدميها. تصف سياسة الخصوصية هذه كيفية جمع بياناتك الشخصية واستخدامها ومشاركتها وحمايتها وفقًا للقانون المغربي رقم 09-08.</p>
+      <div class="highlight-box"><p>نحن لا نبيع بياناتك الشخصية أبدًا لأطراف ثالثة.</p></div>
+    </div>
+
+    <div class="doc-section" id="ar-p2">
+      <h2><span class="section-num">٢</span> البيانات التي نجمعها</h2>
+      <ul>
+        <li><strong>رقم الهاتف</strong>: مطلوب للتسجيل والمصادقة</li>
+        <li><strong>الاسم الكامل والمدينة</strong>: مطلوبان لتقديم الخدمة</li>
+        <li><strong>صورة الملف الشخصي</strong>: اختيارية</li>
+        <li><strong>الموقع الجغرافي GPS</strong>: للخدمات الطارئة فقط</li>
+        <li><strong>سجل المعاملات</strong>: الطلبات والمدفوعات والتقييمات</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="ar-p3">
+      <h2><span class="section-num">٣</span> استخدام البيانات</h2>
+      <ul>
+        <li>تقديم الخدمة: ربط العملاء بالتقنيين</li>
+        <li>المصادقة: التحقق من هويتك عبر رمز OTP</li>
+        <li>الإشعارات: إعلامك بالطلبات والعروض الجديدة</li>
+        <li>الأمان: الكشف عن الاحتيال ومنعه</li>
+        <li>تحسين الخدمة: تحليل الاستخدام لتطوير التجربة</li>
+        <li>الامتثال القانوني: الوفاء بالتزاماتنا القانونية في المغرب</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="ar-p4">
+      <h2><span class="section-num">٤</span> مشاركة البيانات</h2>
+      <ul>
+        <li>اسم العميل ومدينته مرئيان للتقني المعيّن</li>
+        <li>رقم هاتف العميل مرئي للتقني <strong>فقط بعد قبول العرض</strong></li>
+        <li>الملف الشخصي العام للتقني مرئي لجميع العملاء</li>
+        <li><strong>Firebase (Google)</strong>: للمصادقة وقاعدة البيانات والإشعارات</li>
+        <li><strong>Google Maps</strong>: لعرض الخرائط والموقع الجغرافي</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="ar-p5">
+      <h2><span class="section-num">٥</span> أمان البيانات</h2>
+      <ul>
+        <li>تشفير البيانات أثناء النقل (HTTPS/TLS)</li>
+        <li>المصادقة الثنائية عبر رمز OTP</li>
+        <li>وصول محدود للبيانات الشخصية</li>
+        <li>رموز OTP لمرة واحدة لكل تدخل</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="ar-p6">
+      <h2><span class="section-num">٦</span> الاحتفاظ بالبيانات</h2>
+      <ul>
+        <li>الحساب النشط: مدة الاستخدام + 3 سنوات</li>
+        <li>سجل المعاملات: 10 سنوات (التزام قانوني)</li>
+        <li>بيانات الموقع الجغرافي: 30 يومًا كحد أقصى</li>
+        <li>صور الملف الشخصي: حتى الحذف من قبل المستخدم</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="ar-p7">
+      <h2><span class="section-num">٧</span> حقوقك</h2>
+      <p>وفقًا للقانون المغربي 09-08، لك الحق في:</p>
+      <ul>
+        <li><strong>حق الوصول</strong>: الحصول على نسخة من بياناتك الشخصية</li>
+        <li><strong>حق التصحيح</strong>: تصحيح بياناتك غير الدقيقة</li>
+        <li><strong>حق الحذف</strong>: حذف حسابك وبياناتك</li>
+        <li><strong>حق الاعتراض</strong>: الاعتراض على معالجة بياناتك</li>
+      </ul>
+      <p>لممارسة هذه الحقوق، تواصل معنا على <strong>privacy@brikol.ma</strong></p>
+    </div>
+
+    <div class="doc-section" id="ar-p8">
+      <h2><span class="section-num">٨</span> الإشعارات</h2>
+      <p>بموافقتك، نرسل إشعارات فورية لـ:</p>
+      <ul>
+        <li>طلبات التدخل الجديدة (التقنيون)</li>
+        <li>تحديثات حالة طلبك (العملاء)</li>
+        <li>رسائل الدردشة</li>
+      </ul>
+      <p>يمكنك إلغاء تفعيل الإشعارات في أي وقت من إعدادات المتصفح أو الجهاز.</p>
+    </div>
+
+    <div class="doc-section" id="ar-p9">
+      <h2><span class="section-num">٩</span> التواصل</h2>
+      <div class="contact-card">
+        <div class="contact-icon">🔒</div>
+        <div>
+          <strong>مسؤول حماية البيانات</strong><br/>
+          <span class="contact-email">privacy@brikol.ma</span><br/>
+          <span style="font-size:13px;color:var(--text-muted)">رد خلال 30 يومًا · Brikol.ma، المغرب</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ENGLISH ══════════ -->
+  <div class="lang-content" id="lang-en">
+    <div class="doc-header">
+      <div class="doc-badge">🔒 Data Protection</div>
+      <div class="doc-title">Privacy Policy</div>
+      <div class="doc-meta">Brikol.ma · Last updated: August 2026 · Version 1.0</div>
+    </div>
+    <div class="toc">
+      <div class="toc-title">Table of Contents</div>
+      <ol>
+        <li><a href="#en-p1">Introduction</a></li>
+        <li><a href="#en-p2">Data We Collect</a></li>
+        <li><a href="#en-p3">How We Use Your Data</a></li>
+        <li><a href="#en-p4">Data Sharing</a></li>
+        <li><a href="#en-p5">Data Security</a></li>
+        <li><a href="#en-p6">Data Retention</a></li>
+        <li><a href="#en-p7">Your Rights</a></li>
+        <li><a href="#en-p8">Push Notifications</a></li>
+        <li><a href="#en-p9">Contact</a></li>
+      </ol>
+    </div>
+
+    <div class="doc-section" id="en-p1">
+      <h2><span class="section-num">1</span> Introduction</h2>
+      <p>Brikol.ma is committed to protecting the privacy of its users. This Privacy Policy describes how we collect, use, share, and protect your personal data in accordance with Moroccan Law No. 09-08 on the protection of personal data.</p>
+      <div class="highlight-box"><p>We never sell your personal data to third parties.</p></div>
+    </div>
+
+    <div class="doc-section" id="en-p2">
+      <h2><span class="section-num">2</span> Data We Collect</h2>
+      <table class="data-table">
+        <thead><tr><th>Data Type</th><th>Example</th><th>Required</th></tr></thead>
+        <tbody>
+          <tr><td>Phone number</td><td>+212 6XX XXX XXX</td><td>✅ Yes</td></tr>
+          <tr><td>Full name</td><td>Ahmed Benali</td><td>✅ Yes</td></tr>
+          <tr><td>City</td><td>Casablanca</td><td>✅ Yes</td></tr>
+          <tr><td>Profile photo</td><td>JPG/PNG image</td><td>❌ No</td></tr>
+          
+          <tr><td>GPS location</td><td>lat/lng coordinates</td><td>For emergencies</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section" id="en-p3">
+      <h2><span class="section-num">3</span> How We Use Your Data</h2>
+      <ul>
+        <li><strong>Service delivery</strong>: connecting clients with technicians</li>
+        <li><strong>Authentication</strong>: verifying your identity via SMS OTP</li>
+        <li><strong>Notifications</strong>: informing you of new requests and updates</li>
+        <li><strong>Security</strong>: detecting and preventing fraud</li>
+        <li><strong>Service improvement</strong>: analyzing usage to improve experience</li>
+        <li><strong>Legal compliance</strong>: meeting our obligations under Moroccan law</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="en-p4">
+      <h2><span class="section-num">4</span> Data Sharing</h2>
+      <ul>
+        <li>Client name and city are visible to the assigned technician</li>
+        <li>Client phone number is visible to the technician <strong>only after quote acceptance</strong></li>
+        <li>Technician public profile (name, rating, specialties) is visible to all clients</li>
+        <li><strong>Firebase (Google)</strong>: authentication, database, storage, push notifications</li>
+        <li><strong>Google Maps</strong>: map display and geolocation</li>
+      </ul>
+      <div class="highlight-box"><p>We never sell, rent, or share your data for advertising or commercial purposes.</p></div>
+    </div>
+
+    <div class="doc-section" id="en-p5">
+      <h2><span class="section-num">5</span> Data Security</h2>
+      <ul>
+        <li>Data encryption in transit (HTTPS/TLS)</li>
+        <li>Two-factor authentication via SMS OTP</li>
+        <li>Restricted access to personal data (least privilege principle)</li>
+        <li>Firebase infrastructure with international security certifications</li>
+        <li>Single-use OTP codes for each intervention</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="en-p6">
+      <h2><span class="section-num">6</span> Data Retention</h2>
+      <table class="data-table">
+        <thead><tr><th>Data Type</th><th>Retention Period</th></tr></thead>
+        <tbody>
+          <tr><td>Active user account</td><td>Duration of use + 3 years</td></tr>
+          <tr><td>Transaction history</td><td>10 years (legal obligation)</td></tr>
+          <tr><td>Ratings and reviews</td><td>5 years</td></tr>
+          <tr><td>Location data</td><td>Maximum 30 days</td></tr>
+          <tr><td>Security logs</td><td>1 year</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section" id="en-p7">
+      <h2><span class="section-num">7</span> Your Rights</h2>
+      <p>Under Moroccan Law 09-08, you have the right to:</p>
+      <ul>
+        <li><strong>Access</strong>: obtain a copy of your personal data</li>
+        <li><strong>Rectification</strong>: correct inaccurate data</li>
+        <li><strong>Erasure</strong>: delete your account and data</li>
+        <li><strong>Objection</strong>: object to processing of your data</li>
+        <li><strong>Portability</strong>: receive your data in a structured format</li>
+      </ul>
+      <p>To exercise these rights, contact us at <strong>privacy@brikol.ma</strong>. We will respond within <strong>30 days</strong>.</p>
+    </div>
+
+    <div class="doc-section" id="en-p8">
+      <h2><span class="section-num">8</span> Push Notifications</h2>
+      <p>With your consent, we send push notifications for:</p>
+      <ul>
+        <li>New intervention requests (technicians)</li>
+        <li>Order status updates (clients)</li>
+        <li>Chat messages</li>
+      </ul>
+      <p>You can disable notifications at any time in your browser or device settings.</p>
+    </div>
+
+    <div class="doc-section" id="en-p9">
+      <h2><span class="section-num">9</span> Contact</h2>
+      <div class="contact-card">
+        <div class="contact-icon">🔒</div>
+        <div>
+          <strong>Data Protection Officer</strong><br/>
+          <span class="contact-email">privacy@brikol.ma</span><br/>
+          <span style="font-size:13px;color:var(--text-muted)">Response within 30 days · Brikol.ma, Morocco</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <p>© 2026 Brikol.ma · <a href="/terms.html">Conditions d'utilisation</a> · <a href="/landing.html">Accueil</a></p>
+    <p style="margin-top:8px">Made with ❤️ au Maroc 🇲🇦</p>
+  </div>
+</div>
+
+<script>
+  function setLang(lang, btn) {
+    document.querySelectorAll('.lang-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('lang-' + lang).classList.add('active');
+    btn.classList.add('active');
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

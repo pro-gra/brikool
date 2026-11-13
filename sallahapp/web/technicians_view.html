@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Brikol.ma — Technicians Registry</title>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D1117;--surface:#161B22;--surface2:#21262D;--border:#30363D;
+  --text:#E6EDF3;--muted:#8B949E;--green:#3FB950;--green-bg:#0F2A14;
+  --red:#F85149;--red-bg:#2A0F0F;--blue:#58A6FF;--blue-bg:#0D1F3A;
+  --gold:#D29922;--gold-bg:#2A1F0D;--purple:#BC8CFF;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ── */
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#0a1a10,#0e8050);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-box{background:var(--surface);border-radius:20px;padding:36px;width:100%;max-width:380px;border:1px solid var(--border)}
+.login-logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:24px}
+.login-icon{width:44px;height:44px;background:linear-gradient(135deg,#0e8050,#0a6040);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.login-brand{font-size:22px;font-weight:900;color:#3FB950}
+.login-title{font-size:17px;font-weight:800;text-align:center;margin-bottom:20px}
+.login-input{width:100%;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;margin-bottom:10px;transition:.2s}
+.login-input:focus{border-color:var(--blue)}
+.login-btn{width:100%;padding:12px;background:var(--green);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;margin-top:4px}
+.login-btn:hover{filter:brightness(1.1)}
+.login-err{background:var(--red-bg);color:var(--red);font-size:12.5px;padding:8px 12px;border-radius:8px;margin-top:8px;display:none;border:1px solid var(--red)}
+
+/* ── APP ── */
+#app{display:none;flex-direction:column;min-height:100vh}
+
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#0e8050,#0a6040);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:16px;font-weight:800;color:var(--green)}
+.divider-v{width:1px;height:24px;background:var(--border)}
+.page-title{font-size:14px;font-weight:700;color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:10px}
+.stat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.stat-chip span{color:var(--text);font-weight:800}
+.export-btn{background:var(--green-bg);color:var(--green);border:1px solid var(--green);border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.export-btn:hover{background:var(--green);color:white}
+.logout-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:.2s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* ── TOOLBAR ── */
+.toolbar{padding:16px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--surface)}
+.search-wrap{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;transition:.2s}
+.search-wrap:focus-within{border-color:var(--blue)}
+.search-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:13.5px;font-family:inherit;flex:1}
+.search-wrap input::placeholder{color:var(--muted)}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:7px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap}
+.filter-btn.active{background:var(--blue-bg);color:var(--blue);border-color:var(--blue)}
+.filter-btn:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+select.filter-select{padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:12.5px;font-family:inherit;cursor:pointer;outline:none}
+select.filter-select:focus{border-color:var(--blue)}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px 24px;border-bottom:1px solid var(--border)}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px}
+.stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.stat-val{font-size:20px;font-weight:900;line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;padding:0 24px 24px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
+thead tr{background:var(--surface);position:sticky;top:60px;z-index:40}
+th{padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;transition:.2s}
+th:hover{color:var(--blue)}
+th.sort-asc::after{content:' ↑';color:var(--blue)}
+th.sort-desc::after{content:' ↓';color:var(--blue)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+tr:hover td{background:var(--surface2)}
+.td-name{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:99px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--blue);flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.name-main{font-weight:700;color:var(--text)}
+.name-sub{font-size:11px;color:var(--muted);margin-top:1px}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-gold{background:var(--gold-bg);color:var(--gold)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-gray{background:var(--surface2);color:var(--muted)}
+.badge-purple{background:#1A0F2A;color:var(--purple)}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px var(--green)}
+.offline-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block}
+
+/* ── SKILLS TAGS ── */
+.skills{display:flex;gap:4px;flex-wrap:wrap;max-width:220px}
+.skill-tag{background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:600;white-space:nowrap}
+
+/* ── RATING ── */
+.rating{display:flex;align-items:center;gap:4px;font-weight:700}
+.stars{color:#D29922;font-size:11px}
+
+/* ── WALLET ── */
+.wallet-amount{font-weight:800;font-variant-numeric:tabular-nums}
+.wallet-low{color:var(--red)}
+.wallet-ok{color:var(--green)}
+
+/* ── EMPTY / LOADING ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.spinner{width:28px;height:28px;border:2.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ROW NUMBER ── */
+.row-num{color:var(--muted);font-size:11px;font-weight:600;text-align:center;width:32px}
+
+/* ── DETAIL PANEL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;justify-content:flex-end}
+.overlay.open{display:flex}
+.panel{background:var(--surface);width:100%;max-width:440px;height:100vh;overflow-y:auto;border-left:1px solid var(--border);display:flex;flex-direction:column}
+.panel-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.panel-title{font-size:15px;font-weight:800}
+.panel-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1;padding:4px;transition:.2s}
+.panel-close:hover{color:var(--red)}
+.panel-body{padding:20px;flex:1}
+.panel-hero{background:linear-gradient(135deg,#0e8050,#0a6040);border-radius:14px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.panel-avatar{width:56px;height:56px;border-radius:99px;border:2.5px solid rgba(255,255,255,0.3);background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;overflow:hidden;flex-shrink:0}
+.panel-avatar img{width:100%;height:100%;object-fit:cover}
+.panel-name{font-size:17px;font-weight:900;color:white}
+.panel-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.info-item{background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border)}
+.info-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.info-value{font-size:13.5px;font-weight:700;color:var(--text)}
+.section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px}
+.skills-grid{display:flex;flex-wrap:wrap;gap:6px}
+.skill-big{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(88,166,255,0.3);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700}
+.panel-actions{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px}
+.action-btn{flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;border:none}
+.action-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.action-danger:hover{background:var(--red);color:white}
+.action-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.action-success:hover{background:var(--green);color:white}
+
+/* ── FOOTER ── */
+.table-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);background:var(--surface)}
+
+@media(max-width:640px){
+  .stats-row{grid-template-columns:1fr 1fr;padding:12px}
+  .toolbar{padding:12px}
+  th,td{padding:8px 10px}
+  .panel{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-icon">🔧</div>
+      <span class="login-brand">Brikol.ma</span>
+    </div>
+    <div class="login-title">Technicians Registry</div>
+    <input class="login-input" type="email" id="em" placeholder="Email address"/>
+    <input class="login-input" type="password" id="pw" placeholder="Password"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon">🔧</div>
+        <span class="logo-text">Brikol.ma</span>
+      </div>
+      <div class="divider-v"></div>
+      <span class="page-title">Technicians Registry</span>
+    </div>
+    <div class="header-right">
+      <div class="stat-chip">Total <span id="h-total">—</span></div>
+      <div class="stat-chip">🟢 Online <span id="h-online">—</span></div>
+      <div class="stat-chip">✅ Verified <span id="h-verified">—</span></div>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </header>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span style="color:var(--muted);font-size:15px">🔍</span>
+      <input type="text" id="search" placeholder="Search by name, phone, city, specialty…" oninput="applyFilters()"/>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('verified',this)">✅ Verified</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+      <button class="filter-btn" onclick="setFilter('online',this)">🟢 Online</button>
+      <button class="filter-btn" onclick="setFilter('suspended',this)">🚫 Suspended</button>
+    </div>
+    <select class="filter-select" id="city-filter" onchange="applyFilters()">
+      <option value="">All Cities</option>
+    </select>
+    <select class="filter-select" id="skill-filter" onchange="applyFilters()">
+      <option value="">All Specialties</option>
+    </select>
+    <select class="filter-select" id="sort-select" onchange="applyFilters()">
+      <option value="name">Sort: Name</option>
+      <option value="rating">Sort: Rating ↓</option>
+      <option value="jobs">Sort: Jobs ↓</option>
+      <option value="wallet">Sort: Balance ↓</option>
+      <option value="recent">Sort: Newest</option>
+    </select>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card"><div class="stat-icon" style="background:var(--blue-bg)">👨‍🔧</div><div><div class="stat-val" id="s-total">—</div><div class="stat-lbl">Total Technicians</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--green-bg)">🟢</div><div><div class="stat-val" id="s-online">—</div><div class="stat-lbl">Online Now</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--green-bg)">✅</div><div><div class="stat-val" id="s-verified">—</div><div class="stat-lbl">Verified</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--gold-bg)">⏳</div><div><div class="stat-val" id="s-pending">—</div><div class="stat-lbl">Pending Review</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--red-bg)">🚫</div><div><div class="stat-val" id="s-suspended">—</div><div class="stat-lbl">Suspended</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#1A0F2A">⭐</div><div><div class="stat-val" id="s-avgrating">—</div><div class="stat-lbl">Avg Rating</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--green-bg)">💰</div><div><div class="stat-val" id="s-totalwallet">—</div><div class="stat-lbl">Total Wallets (MAD)</div></div></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table id="tech-table">
+      <thead>
+        <tr>
+          <th class="row-num">#</th>
+          <th onclick="sortBy('name')">Technician</th>
+          <th onclick="sortBy('phone')">Phone</th>
+          <th onclick="sortBy('city')">City</th>
+          <th>Specialties</th>
+          <th onclick="sortBy('jobs')">Jobs</th>
+          <th onclick="sortBy('rating')">Rating</th>
+          <th onclick="sortBy('wallet')">Balance</th>
+          <th onclick="sortBy('exp')">Exp.</th>
+          <th>Status</th>
+          <th>Online</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="11"><div class="spinner"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer">
+    <span id="footer-count">Loading…</span>
+    <span style="color:var(--border)">Last updated: <span id="last-update">—</span></span>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closePanel()">
+  <div class="panel" id="panel">
+    <div class="panel-header">
+      <div class="panel-title" id="panel-title">Technician Details</div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+    <div class="panel-actions" id="panel-actions"></div>
+  </div>
+</div>
+
+<script>
+// ── Firebase ──────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: 'AIzaSyDlmEFN2NjlAIa-5LERz5PaYYCRGoj6_xE',
+  authDomain: 'sallahapp-63361.firebaseapp.com',
+  projectId: 'sallahapp-63361',
+  storageBucket: 'sallahapp-63361.firebasestorage.app',
+  messagingSenderId: '951073788486',
+  appId: '1:951073788486:web:e82566b75dbfebdbadb047',
+});
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// ── State ─────────────────────────────────────────────────────────
+let allTechs = [], filtered = [], sortCol = 'name', sortDir = 1, filterStatus = 'all';
+
+// ── Auth ──────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    const adminDoc = await db.collection('admins').doc(user.uid).get();
+    if (!adminDoc.exists) { await auth.signOut(); showErr('Access denied — not an admin.'); return; }
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('app').style.flexDirection = 'column';
+    loadTechs();
+  } else {
+    document.getElementById('login').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+async function doLogin() {
+  const em = document.getElementById('em').value.trim();
+  const pw = document.getElementById('pw').value;
+  if (!em || !pw) { showErr('Fill in all fields.'); return; }
+  try { await auth.signInWithEmailAndPassword(em, pw); }
+  catch(e) { showErr('Wrong credentials.'); }
+}
+function doLogout() { auth.signOut(); }
+function showErr(m) {
+  const el = document.getElementById('err');
+  el.textContent = m; el.style.display = 'block';
+}
+
+// ── Load Technicians ──────────────────────────────────────────────
+function loadTechs() {
+  db.collection('technicians').onSnapshot(snap => {
+    allTechs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    buildFilters();
+    updateStats();
+    applyFilters();
+    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+  });
+}
+
+function buildFilters() {
+  const cities = [...new Set(allTechs.map(t => t.city).filter(Boolean))].sort();
+  const skills = [...new Set(allTechs.flatMap(t => t.servicesProvided || []))].sort();
+  const cf = document.getElementById('city-filter');
+  const sf = document.getElementById('skill-filter');
+  const cv = cf.value, sv = sf.value;
+  cf.innerHTML = '<option value="">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+  sf.innerHTML = '<option value="">All Specialties</option>' + skills.map(s => `<option value="${s}">${s}</option>`).join('');
+  cf.value = cv; sf.value = sv;
+}
+
+function updateStats() {
+  const total = allTechs.length;
+  const online = allTechs.filter(t => t.isOnline).length;
+  const verified = allTechs.filter(t => t.isVerified && !t.isSuspended).length;
+  const pending = allTechs.filter(t => !t.isVerified && !t.isSuspended).length;
+  const suspended = allTechs.filter(t => t.isSuspended).length;
+  const avgRating = allTechs.length ? (allTechs.reduce((s,t) => s + (t.rating||5), 0) / allTechs.length).toFixed(2) : '—';
+  const totalWallet = allTechs.reduce((s,t) => s + (t.walletBalance||0), 0).toFixed(0);
+
+  ['s-total','h-total'].forEach(id => setText(id, total));
+  ['s-online','h-online'].forEach(id => setText(id, online));
+  ['s-verified','h-verified'].forEach(id => setText(id, verified));
+  setText('s-pending', pending);
+  setText('s-suspended', suspended);
+  setText('s-avgrating', avgRating + ' ⭐');
+  setText('s-totalwallet', Number(totalWallet).toLocaleString() + ' MAD');
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ── Filters & Sort ────────────────────────────────────────────────
+function setFilter(f, btn) {
+  filterStatus = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir = -sortDir;
+  else { sortCol = col; sortDir = col === 'name' ? 1 : -1; }
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const city = document.getElementById('city-filter').value;
+  const skill = document.getElementById('skill-filter').value;
+  const sortSel = document.getElementById('sort-select').value;
+
+  filtered = allTechs.filter(t => {
+    if (filterStatus === 'verified'  && !(t.isVerified && !t.isSuspended)) return false;
+    if (filterStatus === 'pending'   && (t.isVerified || t.isSuspended)) return false;
+    if (filterStatus === 'online'    && !t.isOnline) return false;
+    if (filterStatus === 'suspended' && !t.isSuspended) return false;
+    if (city  && t.city !== city) return false;
+    if (skill && !(t.servicesProvided||[]).includes(skill)) return false;
+    if (q) {
+      const hay = [t.fullName||'', t.phone||'', t.city||'', ...(t.servicesProvided||[])].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  const key = sortSel || sortCol;
+  filtered.sort((a, b) => {
+    let av, bv;
+    if (key === 'name')   { av = (a.fullName||'').toLowerCase(); bv = (b.fullName||'').toLowerCase(); }
+    else if (key === 'phone')  { av = a.phone||''; bv = b.phone||''; }
+    else if (key === 'city')   { av = a.city||''; bv = b.city||''; }
+    else if (key === 'rating') { av = a.rating||0; bv = b.rating||0; return bv - av; }
+    else if (key === 'jobs')   { av = a.jobsDone||0; bv = b.jobsDone||0; return bv - av; }
+    else if (key === 'wallet') { av = a.walletBalance||0; bv = b.walletBalance||0; return bv - av; }
+    else if (key === 'exp')    { av = a.yearsExperience||0; bv = b.yearsExperience||0; return bv - av; }
+    else if (key === 'recent') {
+      av = a.createdAt?.toDate?.()?.getTime?.() || 0;
+      bv = b.createdAt?.toDate?.()?.getTime?.() || 0;
+      return bv - av;
+    }
+    else { av = (a.fullName||'').toLowerCase(); bv = (b.fullName||'').toLowerCase(); }
+    if (av < bv) return -1 * sortDir;
+    if (av > bv) return 1 * sortDir;
+    return 0;
+  });
+
+  renderTable();
+  document.getElementById('footer-count').textContent = `Showing ${filtered.length} of ${allTechs.length} technicians`;
+}
+
+// ── Render Table ──────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty"><div class="empty-icon">👨‍🔧</div><div class="empty-text">No technicians found</div><div>Try adjusting your filters</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((t, i) => {
+    const name = t.fullName || '(no name)';
+    const initials = name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    const photo = t.profilePhotoUrl ? `<img src="${t.profilePhotoUrl}" onerror="this.style.display='none'"/>` : initials;
+
+    const skills = (t.servicesProvided||[]).slice(0,3).map(s =>
+      `<span class="skill-tag">${s}</span>`).join('') + (t.servicesProvided?.length > 3 ? `<span class="skill-tag">+${t.servicesProvided.length-3}</span>` : '');
+
+    const rating = (t.rating||5).toFixed(1);
+    const stars = '★'.repeat(Math.round(t.rating||5)) + '☆'.repeat(5-Math.round(t.rating||5));
+
+    const wallet = (t.walletBalance||0).toFixed(0);
+    const walletClass = t.walletBalance < 50 ? 'wallet-low' : 'wallet-ok';
+
+    const statusBadge = t.isSuspended
+      ? `<span class="badge badge-red">🚫 Suspended</span>`
+      : t.isVerified
+        ? `<span class="badge badge-green">✅ Verified</span>`
+        : `<span class="badge badge-gold">⏳ Pending</span>`;
+
+    const onlineBadge = t.isOnline
+      ? `<span class="online-dot"></span>`
+      : `<span class="offline-dot"></span>`;
+
+    const banned = t.isBanned ? `<span class="badge badge-red" style="margin-left:4px">Banned</span>` : '';
+
+    return `<tr onclick="openPanel('${t.id}')" style="cursor:pointer">
+      <td class="row-num">${i+1}</td>
+      <td><div class="td-name">
+        <div class="avatar">${photo}</div>
+        <div>
+          <div class="name-main">${name}${banned}</div>
+          <div class="name-sub">${t.cin || 'No CIN'}</div>
+        </div>
+      </div></td>
+      <td style="font-family:monospace;color:var(--blue);font-size:13px">${t.phone||'—'}</td>
+      <td>${t.city||'—'}</td>
+      <td><div class="skills">${skills||'<span class="name-sub">None</span>'}</div></td>
+      <td><strong style="color:var(--text)">${t.jobsDone||0}</strong></td>
+      <td><div class="rating"><span>${rating}</span><span class="stars">${stars}</span></div></td>
+      <td><span class="wallet-amount ${walletClass}">${Number(wallet).toLocaleString()} MAD</span></td>
+      <td>${t.yearsExperience||0}y</td>
+      <td>${statusBadge}</td>
+      <td style="text-align:center">${onlineBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Detail Panel ──────────────────────────────────────────────────
+function openPanel(id) {
+  const t = allTechs.find(x => x.id === id);
+  if (!t) return;
+  const name = t.fullName || '(no name)';
+  const initials = name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  const photo = t.profilePhotoUrl ? `<img src="${t.profilePhotoUrl}" style="width:100%;height:100%;object-fit:cover"/>` : initials;
+
+  const statusBadge = t.isSuspended
+    ? `<span class="badge badge-red">🚫 Suspended</span>`
+    : t.isVerified
+      ? `<span class="badge badge-green">✅ Verified</span>`
+      : `<span class="badge badge-gold">⏳ Pending</span>`;
+
+  const skills = (t.servicesProvided||[]).map(s=>`<span class="skill-big">${s}</span>`).join('') || '<span style="color:var(--muted)">No approved specialties</span>';
+
+  const created = t.createdAt?.toDate?.() ? new Date(t.createdAt.toDate()).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+
+  document.getElementById('panel-title').textContent = name;
+  document.getElementById('panel-body').innerHTML = `
+    <div class="panel-hero">
+      <div class="panel-avatar">${photo}</div>
+      <div>
+        <div class="panel-name">${name}</div>
+        <div class="panel-sub">${t.city||'—'} · ${t.phone||'—'}</div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          ${statusBadge}
+          ${t.isOnline ? '<span class="badge badge-green">🟢 Online</span>' : '<span class="badge badge-gray">⚫ Offline</span>'}
+          ${t.isBanned ? '<span class="badge badge-red">Banned</span>' : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Phone</div><div class="info-value" style="color:var(--blue)">${t.phone||'—'}</div></div>
+      <div class="info-item"><div class="info-label">City</div><div class="info-value">${t.city||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Rating</div><div class="info-value">${(t.rating||5).toFixed(2)} ⭐</div></div>
+      <div class="info-item"><div class="info-label">Jobs Done</div><div class="info-value">${t.jobsDone||0}</div></div>
+      <div class="info-item"><div class="info-label">Wallet Balance</div><div class="info-value" style="color:${(t.walletBalance||0)<50?'var(--red)':'var(--green)'}">${(t.walletBalance||0).toFixed(2)} MAD</div></div>
+      <div class="info-item"><div class="info-label">Experience</div><div class="info-value">${t.yearsExperience||0} years</div></div>
+      <div class="info-item"><div class="info-label">Age</div><div class="info-value">${t.age||'—'}</div></div>
+      <div class="info-item"><div class="info-label">Joined</div><div class="info-value">${created}</div></div>
+    </div>
+
+    ${t.bio ? `<div class="info-item" style="margin-bottom:14px"><div class="info-label">Bio</div><div style="color:var(--muted);font-size:13px;margin-top:4px;line-height:1.5">${t.bio}</div></div>` : ''}
+
+    <div class="section-title">Approved Specialties</div>
+    <div class="skills-grid">${skills}</div>
+
+    ${(t.specialties||[]).filter(s=>s.status==='pending').length > 0 ? `
+    <div class="section-title" style="color:var(--gold)">⏳ Pending Specialties</div>
+    <div class="skills-grid">
+      ${t.specialties.filter(s=>s.status==='pending').map(s=>`<span class="badge badge-gold">${s.skillLabel||s.skillId}</span>`).join('')}
+    </div>` : ''}
+
+    <div class="section-title">Documents</div>
+    <div style="display:flex;gap:10px">
+      ${t.cinPhotoUrl ? `<a href="${t.cinPhotoUrl}" target="_blank" style="color:var(--blue);font-size:12.5px;font-weight:700">📄 View CIN</a>` : '<span style="color:var(--muted);font-size:12px">No CIN uploaded</span>'}
+      ${t.diplomaPhotoUrl ? `<span style="color:var(--muted)">·</span><a href="${t.diplomaPhotoUrl}" target="_blank" style="color:var(--blue);font-size:12.5px;font-weight:700">🎓 Diploma</a>` : ''}
+      ${t.introVideoUrl ? `<span style="color:var(--muted)">·</span><a href="${t.introVideoUrl}" target="_blank" style="color:var(--blue);font-size:12.5px;font-weight:700">🎬 Intro Video</a>` : ''}
+    </div>
+
+    ${t.banReason ? `<div style="margin-top:14px;background:var(--red-bg);border:1px solid var(--red);border-radius:10px;padding:12px">
+      <div style="color:var(--red);font-size:11px;font-weight:700;margin-bottom:4px">BAN REASON</div>
+      <div style="color:var(--text);font-size:13px">${t.banReason}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('panel-actions').innerHTML = `
+    <button class="action-btn" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)" onclick="copyPhone('${t.phone||''}')">📋 Copy Phone</button>
+    ${!t.isVerified && !t.isSuspended
+      ? `<button class="action-btn action-success" onclick="verifyTech('${t.id}')">✅ Verify</button>`
+      : t.isVerified ? `<button class="action-btn action-danger" onclick="suspendTech('${t.id}')">Suspend</button>` : ''}
+    ${t.isSuspended ? `<button class="action-btn action-success" onclick="reinstTech('${t.id}')">♻️ Reinstate</button>` : ''}
+  `;
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function copyPhone(phone) {
+  navigator.clipboard.writeText(phone).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Phone', 1500);
+  });
+}
+
+async function verifyTech(id) {
+  await db.collection('technicians').doc(id).update({ isVerified: true });
+  closePanel();
+}
+async function suspendTech(id) {
+  if (!confirm('Suspend this technician?')) return;
+  await db.collection('technicians').doc(id).update({ isSuspended: true, isOnline: false });
+  closePanel();
+}
+async function reinstTech(id) {
+  await db.collection('technicians').doc(id).update({ isSuspended: false });
+  closePanel();
+}
+
+// ── Export CSV ────────────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['#','Name','Phone','City','Specialties','Jobs','Rating','Balance (MAD)','Experience (y)','Verified','Online','Suspended','CIN','Joined'];
+  const rows = filtered.map((t, i) => [
+    i+1,
+    `"${(t.fullName||'').replace(/"/g,'""')}"`,
+    t.phone||'',
+    t.city||'',
+    `"${(t.servicesProvided||[]).join(', ')}"`,
+    t.jobsDone||0,
+    (t.rating||5).toFixed(2),
+    (t.walletBalance||0).toFixed(2),
+    t.yearsExperience||0,
+    t.isVerified ? 'Yes' : 'No',
+    t.isOnline ? 'Yes' : 'No',
+    t.isSuspended ? 'Yes' : 'No',
+    t.cin||'',
+    t.createdAt?.toDate?.() ? new Date(t.createdAt.toDate()).toLocaleDateString('en-GB') : '',
+  ]);
+  const csv = [headers.join(','), ...rows.map(r=>r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `brikol_technicians_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePanel();
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault(); document.getElementById('search').focus();
+  }
+});
+document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
