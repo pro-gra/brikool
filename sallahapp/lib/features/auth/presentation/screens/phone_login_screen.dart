@@ -134,11 +134,10 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   Widget _languageSwitch() {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.13),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withOpacity(.2)),
+        color: const Color(0xFFF0F3F1),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         _languageOption('FR', false),
@@ -174,200 +173,59 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _mobileHeader(),
-        Transform.translate(
-          offset: const Offset(0, -22),
-          child: _loginCard(compact: true),
-        ),
-        Transform.translate(
-          offset: const Offset(0, -8),
-          child: Text(
-            _t('BRIKOOL · LES BONS PROFESSIONNELS, EN TOUTE SIMPLICITÉ',
-                'بريكول · مهنيون موثوقون، بكل سهولة'),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF929E96),
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              letterSpacing: .45,
-            ),
+        Align(alignment: AlignmentDirectional.centerEnd, child: _languageSwitch()),
+        const SizedBox(height: 34),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: _loginCard(compact: true),
           ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          _t('Une connexion simple et sécurisée', 'تسجيل دخول بسيط وآمن'),
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Color(0xFF929E96), fontSize: 11),
         ),
       ],
     );
   }
 
   Widget _mobileHeader() {
-    return Container(
-      height: 218,
-      padding: const EdgeInsets.fromLTRB(22, 18, 22, 38),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D8051), Color(0xFF06432F)],
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(children: [
-            _brandMark(),
-            const SizedBox(width: 10),
-            const Text('brikool', style: TextStyle(
-              color: Colors.white, fontSize: 23,
-              fontWeight: FontWeight.w900, letterSpacing: -.8,
-            )),
-            const Spacer(),
-            _languageSwitch(),
-          ]),
-          const Spacer(),
-          Text(
-            _t('Votre maison, entre de bonnes mains.',
-                'دارك بين يدي أمينة.'),
-            style: const TextStyle(
-              color: Colors.white, fontSize: 25,
-              height: 1.2, fontWeight: FontWeight.w800,
-              letterSpacing: -.6,
-            ),
-          ),
-          const SizedBox(height: 7),
-          Text(
-            _t('Les professionnels qu’il vous faut, simplement.',
-                'المهنيون اللي محتاج ليهم، بكل سهولة.'),
-            style: const TextStyle(
-              color: Color(0xFFD6E9DE), fontSize: 12.5, height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _desktopLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(end: 48),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(children: [
-                  _brandMark(),
-                  const SizedBox(width: 12),
-                  const Text('brikool', style: TextStyle(
-                    color: _ink, fontSize: 27,
-                    fontWeight: FontWeight.w900, letterSpacing: -1,
-                  )),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE9EFEB),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(children: [
-                      _desktopLanguageOption('FR', false),
-                      _desktopLanguageOption('ع', true),
-                    ]),
-                  ),
-                ]),
-                const SizedBox(height: 64),
-                Text(
-                  _t('Les bons pros.\nAu bon moment.',
-                      'المهنيون المناسبون.\nفي الوقت المناسب.'),
-                  style: const TextStyle(
-                    color: _deepGreen, fontSize: 48,
-                    height: 1.12, fontWeight: FontWeight.w900,
-                    letterSpacing: -1.8,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  _t('Un dépannage, une installation ou un projet à la maison ? '
-                      'Trouvez le professionnel qu’il vous faut sur Brikool.',
-                      'تحتاج إلى إصلاح أو تركيب أو خدمة في منزلك؟ '
-                      'اعثر على المهني المناسب عبر بريكول.'),
-                  style: const TextStyle(
-                    color: _muted, fontSize: 16, height: 1.7,
-                  ),
-                ),
-                const SizedBox(height: 34),
-                _trustLine(Icons.verified_outlined,
-                    _t('Des professionnels de confiance', 'مهنيون موثوقون')),
-                const SizedBox(height: 17),
-                _trustLine(Icons.bolt_outlined,
-                    _t('Une demande en quelques clics', 'اطلب خدمتك في خطوات بسيطة')),
-                const SizedBox(height: 17),
-                _trustLine(Icons.home_outlined,
-                    _t('Des services près de chez vous', 'خدمات قريبة منك')),
-              ],
-            ),
-          ),
+        Align(alignment: AlignmentDirectional.centerEnd, child: _languageSwitch()),
+        const SizedBox(height: 28),
+        Center(
+          child: SizedBox(width: 460, child: _loginCard(compact: false)),
         ),
-        SizedBox(width: 430, child: _loginCard(compact: false)),
       ],
     );
   }
 
   Widget _desktopLanguageOption(String label, bool arabic) {
-    final selected = _isArabic == arabic;
-    return GestureDetector(
-      onTap: () => setState(() {
-        _isArabic = arabic;
-        _error = null;
-      }),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: selected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Text(label, style: TextStyle(
-          color: selected ? _deepGreen : _muted,
-          fontSize: 12, fontWeight: FontWeight.w800,
-        )),
-      ),
-    );
+    return _languageOption(label, arabic);
   }
 
   Widget _brandMark() {
-    return Container(
-      width: 42, height: 42,
-      decoration: BoxDecoration(
-        color: _green, borderRadius: BorderRadius.circular(13),
-      ),
-      child: const Icon(Icons.handyman_rounded, color: Colors.white, size: 22),
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _trustLine(IconData icon, String label) {
-    return Row(children: [
-      Container(
-        width: 34, height: 34,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE6F1EA),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: _green, size: 18),
-      ),
-      const SizedBox(width: 12),
-      Text(label, style: const TextStyle(
-        color: Color(0xFF405148), fontSize: 14, fontWeight: FontWeight.w600,
-      )),
-    ]);
+    return const SizedBox.shrink();
   }
 
   Widget _loginCard({required bool compact}) {
     return Container(
-      padding: EdgeInsets.all(compact ? 22 : 32),
+      padding: EdgeInsets.all(compact ? 22 : 34),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(23),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _line),
         boxShadow: const [
           BoxShadow(
@@ -381,9 +239,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            _t('Bienvenue sur Brikool', 'مرحباً بك في بريكول'),
+            _t('Connexion', 'تسجيل الدخول'),
             style: const TextStyle(
-              color: _ink, fontSize: 23,
+              color: _ink, fontSize: 26,
               fontWeight: FontWeight.w900, letterSpacing: -.55,
             ),
           ),
@@ -485,13 +343,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   Widget _phoneField() {
     return Container(
-      height: 57,
+      height: 58,
       decoration: BoxDecoration(
-        color: const Color(0xFFFBFCFB),
+        color: Colors.white,
         border: Border.all(
           color: _error == null ? const Color(0xFFDCE5DE) : const Color(0xFFB42318),
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(children: [
         const Padding(
@@ -528,6 +386,11 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
             hintText: '6XX XXX XXX',
             hintStyle: const TextStyle(color: Color(0xFFADB7B0), fontSize: 13),
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            focusedErrorBorder: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             isDense: true,
           ),
