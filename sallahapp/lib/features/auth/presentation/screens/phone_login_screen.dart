@@ -107,260 +107,326 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isWide = MediaQuery.of(context).size.width >= 700;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F7),
+      backgroundColor: const Color(0xFFF5F7F5),
       resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          // ── Background decoration ─────────────────────────────────
-          Positioned(top: -120, right: -90,
-              child: _GlowCircle(size: 300, color: AppColors.primary.withOpacity(0.10))),
-          Positioned(top: 210, left: -130,
-              child: _GlowCircle(size: 260, color: AppColors.primary.withOpacity(0.045))),
-
-          // ── Main content ──────────────────────────────────────────
-          SafeArea(
-            child: SingleChildScrollView(
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(24, 18, 24,
-                  bottomInset > 0 ? bottomInset + 20 : 28),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ── Brand bar ───────────────────────────────────
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _BrandMark(),
-                          const Spacer(),
-                          const BrikoolLanguagePicker(compact: true),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: const Color(0xFFE7ECE8)),
-                            ),
-                            child: Row(mainAxisSize: MainAxisSize.min, children: [
-                              Container(width: 7, height: 7,
-                                  decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle)),
-                              const SizedBox(width: 6),
-                              const Text('Service local',
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF526057))),
-                            ]),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 50),
-
-                      // ── Logo ───────────────────────────────────────
-                      Center(
-                        child: Container(
-                          width: 94, height: 94,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.20),
-                                blurRadius: 30, offset: const Offset(0, 14))],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(28),
-                            child: Image.asset('assets/images/brikol_app_icon_192.png',
-                                width: 94, height: 94, fit: BoxFit.cover),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // ── Welcome ────────────────────────────────────
-                      Center(
-                        child: Text(BrikoolLocale.text('Bienvenue sur brikool', ar: 'مرحباً بك في بريكول', darija: 'مرحبا بيك فبريكول'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 27, height: 1.1, fontWeight: FontWeight.w900,
-                                letterSpacing: -0.8, color: Color(0xFF17201A))),
-                      ),
-                      const SizedBox(height: 10),
-                      Center(
-                        child: Text(BrikoolLocale.text('Des professionnels fiables,\ndirectement à votre porte.', ar: 'محترفون موثوقون، مباشرة إلى باب منزلك.', darija: 'تقنيين ثقة، حتى لباب دارك.'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF707A73), fontWeight: FontWeight.w500)),
-                      ),
-                      const SizedBox(height: 40),
-
-                      // ── Phone card ─────────────────────────────────
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: const Color(0xFFE8EDE9)),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.035),
-                              blurRadius: 30, offset: const Offset(0, 12))],
-                        ),
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(BrikoolLocale.text('Votre numéro de téléphone', ar: 'رقم هاتفك', darija: 'رقم التيليفون ديالك'),
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF252D27))),
-                          const SizedBox(height: 8),
-                          Text(BrikoolLocale.text('Nous vous enverrons un code de vérification par SMS.', ar: 'سنرسل إليك رمز التحقق عبر رسالة SMS.', darija: 'غادي نصيفطو ليك كود التأكيد فـ SMS.'),
-                              style: TextStyle(fontSize: 12.5, height: 1.45, color: Color(0xFF89918B))),
-                          const SizedBox(height: 18),
-                          // Phone field
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAF8),
-                              borderRadius: BorderRadius.circular(17),
-                              border: Border.all(
-                                color: _error != null ? AppColors.danger
-                                    : _focused ? AppColors.primary : const Color(0xFFE1E7E2),
-                                width: _focused || _error != null ? 1.7 : 1.1,
-                              ),
-                            ),
-                            child: Row(children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 13),
-                                height: 58,
-                                child: const Row(children: [
-                                  Text('🇲🇦', style: TextStyle(fontSize: 21)),
-                                  SizedBox(width: 7),
-                                  Text('+212', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF26302A))),
-                                ]),
-                              ),
-                              Container(width: 1, height: 28, color: const Color(0xFFDCE3DE)),
-                              Expanded(
-                                child: TextField(
-                                  controller: _phoneController,
-                                  focusNode: _focusNode,
-                                  keyboardType: TextInputType.phone,
-                                  textInputAction: TextInputAction.done,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    LengthLimitingTextInputFormatter(9),
-                                  ],
-                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800,
-                                      letterSpacing: 1.7, color: Color(0xFF1D261F)),
-                                  decoration: const InputDecoration(
-                                    hintText: '6XX XXX XXX',
-                                    hintStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w500,
-                                        letterSpacing: 1.3, color: Color(0xFFB2BAB4)),
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 14),
+              padding: EdgeInsets.fromLTRB(
+                isWide ? 32 : 22,
+                isWide ? 28 : 18,
+                isWide ? 32 : 22,
+                bottomInset > 0 ? bottomInset + 24 : 28,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 46),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        _BrandMark(),
+                        const Spacer(),
+                        const BrikoolLanguagePicker(compact: true),
+                      ],
+                    ),
+                    const Spacer(),
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 440),
+                            child: Container(
+                              padding: EdgeInsets.all(isWide ? 34 : 24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(26),
+                                border: Border.all(color: const Color(0xFFE7ECE8)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF173D2A).withOpacity(.055),
+                                    blurRadius: 36,
+                                    offset: const Offset(0, 16),
                                   ),
-                                  onChanged: (_) { if (_error != null) setState(() => _error = null); },
-                                  onSubmitted: (_) => _submit(),
-                                ),
+                                ],
                               ),
-                            ]),
-                          ),
-                          // Error
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 180),
-                            child: _error != null
-                                ? Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                      const Icon(Icons.error_outline_rounded, size: 15, color: AppColors.danger),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    BrikoolLocale.text('Connectez-vous', ar: 'تسجيل الدخول', darija: 'دخل لحسابك'),
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      fontSize: 27,
+                                      height: 1.15,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -.8,
+                                      color: Color(0xFF17231B),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    BrikoolLocale.text(
+                                      'Accédez à votre espace Brikool en quelques secondes.',
+                                      ar: 'ادخل إلى حسابك في بريكول في ثوانٍ.',
+                                      darija: 'دخل لحسابك فبريكول غير فثواني.',
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      height: 1.5,
+                                      color: Color(0xFF748078),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  Text(
+                                    BrikoolLocale.text('Numéro de téléphone', ar: 'رقم الهاتف', darija: 'رقم التيليفون'),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF344139),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 160),
+                                    height: 58,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFAFBFA),
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: _error != null
+                                            ? AppColors.danger
+                                            : _focused
+                                                ? AppColors.primary
+                                                : const Color(0xFFDDE5DF),
+                                        width: _focused || _error != null ? 1.5 : 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 14),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text('🇲🇦', style: TextStyle(fontSize: 19)),
+                                              SizedBox(width: 7),
+                                              Text(
+                                                '+212',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF344139),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(width: 1, height: 26, color: const Color(0xFFE0E6E1)),
+                                        Expanded(
+                                          child: TextField(
+                                            controller: _phoneController,
+                                            focusNode: _focusNode,
+                                            keyboardType: TextInputType.phone,
+                                            textInputAction: TextInputAction.done,
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.digitsOnly,
+                                              LengthLimitingTextInputFormatter(9),
+                                            ],
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 1.1,
+                                              color: Color(0xFF1D2921),
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText: '6XX XXX XXX',
+                                              hintStyle: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.blueGrey.shade200,
+                                                letterSpacing: .6,
+                                              ),
+                                              border: InputBorder.none,
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                                            ),
+                                            onChanged: (_) {
+                                              if (_error != null) setState(() => _error = null);
+                                            },
+                                            onSubmitted: (_) => _submit(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  AnimatedSize(
+                                    duration: const Duration(milliseconds: 180),
+                                    child: _error == null
+                                        ? const SizedBox.shrink()
+                                        : Padding(
+                                            padding: const EdgeInsets.only(top: 10),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                const Icon(Icons.error_outline_rounded,
+                                                    size: 15, color: AppColors.danger),
+                                                const SizedBox(width: 7),
+                                                Expanded(
+                                                  child: Text(
+                                                    _error!,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      height: 1.4,
+                                                      color: AppColors.danger,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                  ),
+                                  const SizedBox(height: 18),
+                                  SizedBox(
+                                    height: 54,
+                                    child: ElevatedButton(
+                                      onPressed: _loading ? null : _submit,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primary,
+                                        disabledBackgroundColor: AppColors.primary.withOpacity(.65),
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(14),
+                                        ),
+                                      ),
+                                      child: AnimatedSwitcher(
+                                        duration: const Duration(milliseconds: 160),
+                                        child: _loading
+                                            ? const SizedBox(
+                                                key: ValueKey('loading'),
+                                                width: 21,
+                                                height: 21,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2.3,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                            : Row(
+                                                key: const ValueKey('send-code'),
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    BrikoolLocale.text('Continuer', ar: 'متابعة', darija: 'كمل'),
+                                                    style: const TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 9),
+                                                  const Icon(Icons.arrow_forward_rounded, size: 18),
+                                                ],
+                                              ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 22),
+                                  Row(
+                                    children: [
+                                      const Expanded(child: Divider(color: Color(0xFFE5EAE6))),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                                        child: Text(
+                                          BrikoolLocale.text('OU', ar: 'أو', darija: 'ولا'),
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            letterSpacing: .8,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF9AA49D),
+                                          ),
+                                        ),
+                                      ),
+                                      const Expanded(child: Divider(color: Color(0xFFE5EAE6))),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  _SocialButton(
+                                    onTap: _googleLoading ? null : _signInWithGoogle,
+                                    loading: _googleLoading,
+                                    label: BrikoolLocale.text(
+                                      'Continuer avec Google',
+                                      ar: 'المتابعة باستخدام Google',
+                                      darija: 'كمل بـ Google',
+                                    ),
+                                    icon: _GoogleIcon(),
+                                  ),
+                                  const SizedBox(height: 11),
+                                  _SocialButton(
+                                    onTap: _openEmail,
+                                    loading: false,
+                                    label: BrikoolLocale.text(
+                                      'Continuer avec e-mail',
+                                      ar: 'المتابعة بالبريد الإلكتروني',
+                                      darija: 'كمل بالإيميل',
+                                    ),
+                                    icon: const Icon(
+                                      Icons.mail_outline_rounded,
+                                      size: 19,
+                                      color: Color(0xFF344139),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.lock_outline_rounded,
+                                          size: 14, color: AppColors.primary),
                                       const SizedBox(width: 7),
-                                      Expanded(child: Text(_error!,
-                                          style: const TextStyle(fontSize: 12, height: 1.4,
-                                              color: AppColors.danger, fontWeight: FontWeight.w600))),
-                                    ]))
-                                : const SizedBox.shrink(),
-                          ),
-                          const SizedBox(height: 18),
-                          // Send OTP button
-                          SizedBox(
-                            width: double.infinity, height: 56,
-                            child: ElevatedButton(
-                              onPressed: _loading ? null : _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                disabledBackgroundColor: AppColors.primary.withOpacity(0.65),
-                                foregroundColor: Colors.white, elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 180),
-                                child: _loading
-                                    ? const SizedBox(key: ValueKey('l'), width: 22, height: 22,
-                                        child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                                    : Row(key: const ValueKey('b'),
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(BrikoolLocale.text('Recevoir le code', ar: 'تلقي الرمز', darija: 'توصل بالكود'),
-                                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-                                          SizedBox(width: 9),
-                                          Icon(Icons.arrow_forward_rounded, size: 19),
-                                        ]),
+                                      Flexible(
+                                        child: Text(
+                                          BrikoolLocale.text(
+                                            'Connexion sécurisée · Votre numéro reste privé',
+                                            ar: 'اتصال آمن · رقمك يبقى سرياً',
+                                            darija: 'دخول آمن · رقمك كيبقى سري',
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Color(0xFF87928A),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ]),
-                      ),
-                      const SizedBox(height: 18),
-
-                      // ── Divider "ou" ───────────────────────────────
-                      Row(children: [
-                        const Expanded(child: Divider(color: Color(0xFFDCE3DE))),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(BrikoolLocale.text('ou', ar: 'أو', darija: 'ولا'), style: TextStyle(fontSize: 13, color: Color(0xFF89918B), fontWeight: FontWeight.w600)),
                         ),
-                        const Expanded(child: Divider(color: Color(0xFFDCE3DE))),
-                      ]),
-                      const SizedBox(height: 16),
-
-                      // ── Google button ──────────────────────────────
-                      _SocialButton(
-                        onTap: _googleLoading ? null : _signInWithGoogle,
-                        loading: _googleLoading,
-                        label: BrikoolLocale.text('Continuer avec Google', ar: 'المتابعة باستخدام Google', darija: 'كمل بـ Google'),
-                        icon: _GoogleIcon(),
                       ),
-                      const SizedBox(height: 12),
-
-                      // ── Email button ───────────────────────────────
-                      _SocialButton(
-                        onTap: _openEmail,
-                        loading: false,
-                        label: BrikoolLocale.text('Continuer avec e-mail', ar: 'المتابعة بالبريد الإلكتروني', darija: 'كمل بالإيميل'),
-                        icon: const Icon(Icons.email_outlined, size: 20, color: Color(0xFF3D4A41)),
+                    ),
+                    const Spacer(),
+                    const SizedBox(height: 22),
+                    Text(
+                      'brikool  ·  Les services, simplement.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF9AA49D),
+                        letterSpacing: .2,
                       ),
-                      const SizedBox(height: 24),
-
-                      // ── Security note ──────────────────────────────
-                      Center(
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Text(BrikoolLocale.text('Votre numéro reste privé et sécurisé', ar: 'رقمك محمي وسري', darija: 'رقمك باقي سري ومحمي'),
-                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF89918B))),
-                        ]),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // ── Tagline ────────────────────────────────────
-                      Center(
-                        child: Column(children: const [
-                          Text('خدمة نقية... فبلاصتك',
-                              textDirection: TextDirection.rtl,
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF6F7972))),
-                          SizedBox(height: 6),
-                          Text('brikool',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800,
-                                  color: Color(0xFFB0B8B2), letterSpacing: 1)),
-                        ]),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -468,15 +534,4 @@ class _BrandMark extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.4, color: Color(0xFF182019))),
     ]);
   }
-}
-
-// ── Glow circle ───────────────────────────────────────────────────────────────
-
-class _GlowCircle extends StatelessWidget {
-  const _GlowCircle({required this.size, required this.color});
-  final double size;
-  final Color color;
-  @override
-  Widget build(BuildContext context) =>
-      Container(width: size, height: size, decoration: BoxDecoration(color: color, shape: BoxShape.circle));
 }
