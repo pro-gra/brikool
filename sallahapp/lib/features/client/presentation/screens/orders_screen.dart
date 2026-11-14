@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:url_launcher/url_launcher.dart' as ul;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/firestore_service.dart';
@@ -811,6 +812,17 @@ class OrderDetailScreen extends StatelessWidget {
           const SizedBox(height: 12),
         ],
 
+        // ── Live technician location (only while travelling) ──
+        if (status == 'en_route') ...[
+          _LiveTechnicianTrackingCard(
+            technicianLocation: data['technicianLocation'],
+            clientLocation: data['clientLocation'],
+            updatedAt: data['technicianLocationUpdatedAt'],
+            t: t,
+          ),
+          const SizedBox(height: 12),
+        ],
+
         // ── Verification OTP ──
         if (isActive && !isPending) ...[
           Container(
@@ -912,6 +924,17 @@ class OrderDetailScreen extends StatelessWidget {
           const SizedBox(height: 12),
         ],
 
+        // ── Before & after proof photos ──
+        if (((data['beforePhotos'] as List?)?.isNotEmpty ?? false) ||
+            ((data['afterPhotos'] as List?)?.isNotEmpty ?? false)) ...[
+          _BeforeAfterPhotos(
+            beforePhotos: (data['beforePhotos'] as List?)?.cast<Map<String, dynamic>>() ?? const [],
+            afterPhotos: (data['afterPhotos'] as List?)?.cast<Map<String, dynamic>>() ?? const [],
+            t: t,
+          ),
+          const SizedBox(height: 12),
+        ],
+
         // ── Sharing, Emergency & Help Options ──
         if (isActive && !isPending && techId != null) ...[
           _ShareTrackingButton(techId: techId, serviceLabel: serviceLabel, status: status, fs: fs, t: t),
@@ -972,6 +995,142 @@ class OrderDetailScreen extends StatelessWidget {
             label: Text(t('order_cancel'), style: const TextStyle(fontWeight: FontWeight.w800)),
           ),
       ],
+    );
+  }
+}
+
+class _LiveTechnicianTrackingCard extends StatelessWidget {
+  const _LiveTechnicianTrackingCard({
+    required this.technicianLocation,
+    required this.clientLocation,
+    required this.updatedAt,
+    required this.t,
+  });
+  final dynamic technicianLocation;
+  final dynamic clientLocation;
+  final dynamic updatedAt;
+  final String Function(String) t;
+
+  @override
+  Widget build(BuildContext context) {
+    final tech = technicianLocation is GeoPoint ? technicianLocation as GeoPoint : null;
+    final client = clientLocation is GeoPoint ? clientLocation as GeoPoint : null;
+    final lastUpdate = updatedAt is Timestamp ? (updatedAt as Timestamp).toDate() : null;
+    final center = tech ?? client;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.grey.withOpacity(.12)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Container(width: 38, height: 38,
+            decoration: BoxDecoration(color: const Color(0xFFE7F5EF), borderRadius: BorderRadius.circular(12)),
+            child: const Icon(Icons.my_location_rounded, color: Color(0xFF0F7A52))),
+          const SizedBox(width: 10),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t('tracking_title'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 2),
+            Text(tech == null ? t('tracking_waiting') : t('tracking_live'),
+              style: TextStyle(fontSize: 11.5, color: tech == null ? Colors.orange.shade800 : const Color(0xFF0F7A52), fontWeight: FontWeight.w700)),
+          ])),
+          if (tech != null) const Icon(Icons.circle, size: 9, color: Color(0xFF19A66A)),
+        ]),
+        const SizedBox(height: 12),
+        if (center == null)
+          Container(
+            height: 130,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: const Color(0xFFF3F7F5), borderRadius: BorderRadius.circular(16)),
+            child: Text(t('tracking_waiting'), style: const TextStyle(color: Colors.black54, fontSize: 12)),
+          )
+        else
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 210,
+              child: gmaps.GoogleMap(
+                initialCameraPosition: gmaps.CameraPosition(
+                  target: gmaps.LatLng(center.latitude, center.longitude),
+                  zoom: 14,
+                ),
+                markers: {
+                  if (tech != null) gmaps.Marker(
+                    markerId: const gmaps.MarkerId('technician'),
+                    position: gmaps.LatLng(tech.latitude, tech.longitude),
+                    infoWindow: const gmaps.InfoWindow(title: 'Technicien'),
+                    icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueGreen),
+                  ),
+                  if (client != null) gmaps.Marker(
+                    markerId: const gmaps.MarkerId('destination'),
+                    position: gmaps.LatLng(client.latitude, client.longitude),
+                    infoWindow: const gmaps.InfoWindow(title: 'Votre adresse'),
+                  ),
+                },
+                zoomControlsEnabled: false,
+                myLocationButtonEnabled: false,
+                mapToolbarEnabled: false,
+                compassEnabled: false,
+              ),
+            ),
+          ),
+        if (lastUpdate != null) ...[
+          const SizedBox(height: 8),
+          Text('${t('tracking_updated')} ${DateFormat('HH:mm:ss').format(lastUpdate)}',
+            style: TextStyle(fontSize: 10.5, color: Colors.grey.shade500)),
+        ],
+      ]),
+    );
+  }
+}
+
+class _BeforeAfterPhotos extends StatelessWidget {
+  const _BeforeAfterPhotos({required this.beforePhotos, required this.afterPhotos, required this.t});
+  final List<Map<String, dynamic>> beforePhotos;
+  final List<Map<String, dynamic>> afterPhotos;
+  final String Function(String) t;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget group(String title, List<Map<String, dynamic>> photos) {
+      if (photos.isEmpty) return const SizedBox.shrink();
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('$title · ${photos.length}', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 8),
+        SizedBox(height: 92, child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: photos.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 9),
+          itemBuilder: (context, index) {
+            final url = photos[index]['url'] as String? ?? '';
+            return GestureDetector(
+              onTap: () => showDialog(context: context, builder: (_) => Dialog(
+                child: InteractiveViewer(child: Image.network(url, fit: BoxFit.contain)),
+              )),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(url, width: 92, height: 92, fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(width: 92, height: 92, color: Colors.grey.shade100,
+                    child: const Icon(Icons.broken_image_outlined))),
+              ),
+            );
+          },
+        )),
+      ]);
+    }
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.grey.withOpacity(.12))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(t('job_photos_title'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 12),
+        group(t('photo_before_title'), beforePhotos),
+        if (beforePhotos.isNotEmpty && afterPhotos.isNotEmpty) const SizedBox(height: 14),
+        group(t('photo_after_title'), afterPhotos),
+      ]),
     );
   }
 }
