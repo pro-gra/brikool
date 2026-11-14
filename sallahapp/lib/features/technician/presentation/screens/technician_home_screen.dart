@@ -15,7 +15,6 @@ import '../../../client/presentation/screens/chat_screen.dart';
 import '../../../client/presentation/screens/orders_screen.dart' show CallSupportButton;
 import '../../../client/presentation/screens/ai_assistant_bubble.dart';
 import '../../../client/presentation/bloc/language_cubit.dart';
-import 'wallet_deposit_screen.dart';
 
 class TechnicianHomeScreen extends StatefulWidget {
   const TechnicianHomeScreen({super.key, required this.profile});
@@ -43,14 +42,18 @@ class _TechnicianHomeScreenState extends State<TechnicianHomeScreen> {
       );
       return;
     }
-    if (value && profile.walletBalance < FirestoreService.minBalanceToGoOnline) {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => WalletDepositScreen(currentBalance: profile.walletBalance)));
-      return;
-    }
     setState(() => _busy = true);
-    await _firestoreService.setTechnicianOnline(profile.techId, value);
-    if (mounted) setState(() => _busy = false);
+    try {
+      await _firestoreService.setTechnicianOnline(profile.techId, value);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -176,27 +179,15 @@ class _Header extends StatelessWidget {
               _HeaderStat(value: '${profile.jobsDone}', label: t('tech_stat_jobs')),
               _HeaderStat(value: profile.rating.toStringAsFixed(1), label: t('tech_stat_rating')),
               Expanded(
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => WalletDepositScreen(currentBalance: profile.walletBalance))),
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    decoration: BoxDecoration(
-                      color: profile.walletBalance < FirestoreService.minBalanceToGoOnline
-                          ? const Color(0x33FF5252)
-                          : Colors.white.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Column(
-                      children: [
-                        Text('${profile.walletBalance.toStringAsFixed(0)} MAD',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
-                        Text(t('tech_wallet_recharge_hint'),
-                            style: const TextStyle(fontSize: 9.5, color: Colors.white70)),
-                      ],
-                    ),
-                  ),
+                child: Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.14), borderRadius: BorderRadius.circular(14)),
+                  child: Column(children: [
+                    Text(profile.city.isEmpty ? '—' : profile.city, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text('Ville', style: const TextStyle(fontSize: 9.5, color: Colors.white70)),
+                  ]),
                 ),
               ),
             ],
@@ -240,21 +231,43 @@ class _OfflineState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.power_settings_new_rounded, size: 40, color: AppColors.textMuted),
-            const SizedBox(height: 16),
-            Text(t('tech_offline_title'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            Text(t('tech_offline_sub'), textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-          ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border),
+            boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(.06), blurRadius: 24, offset: const Offset(0, 10))],
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(width: 58, height: 58,
+              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(18)),
+              child: const Icon(Icons.event_available_rounded, color: AppColors.primary, size: 29)),
+            const SizedBox(height: 20),
+            Text(t('tech_offline_title'),
+                style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+            const SizedBox(height: 8),
+            Text(t('tech_offline_sub'),
+                style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.textSecondary)),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(16)),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.tips_and_updates_outlined, color: AppColors.primary, size: 20),
+                const SizedBox(width: 10),
+                Expanded(child: Text(
+                  'Activez votre disponibilité avec le bouton en haut pour recevoir les demandes près de vous.',
+                  style: const TextStyle(fontSize: 12.5, height: 1.5, color: AppColors.primaryDark),
+                )),
+              ]),
+            ),
+          ]),
         ),
-      ),
+      ],
     );
   }
 }
@@ -679,7 +692,7 @@ class _JobCardState extends State<_JobCard> {
                     child: _accepting
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                         : Text(
-                            '${t('tech_accept')} (${(budget - budget * FirestoreService.commissionRate).toStringAsFixed(0)} MAD)',
+                            '${t('tech_accept')} (${budget.toStringAsFixed(0)} MAD)',
                             style: const TextStyle(fontSize: 11.5)),
                   ),
                 ),
@@ -909,7 +922,7 @@ class _ActiveJobPanelState extends State<_ActiveJobPanel> {
     final clientName = job['clientName'] as String? ?? t('chat_default_service');
     final clientId = job['clientId'] as String? ?? '';
     final price = (job['priceQuoteMAD'] as num?)?.toDouble() ?? 0;
-    final commission = (job['commissionMAD'] as num?)?.toDouble() ?? 0;
+    final commission = 0.0;
     final lat = (job['clientLocation'] as dynamic)?.latitude;
     final lng = (job['clientLocation'] as dynamic)?.longitude;
 
@@ -932,7 +945,7 @@ class _ActiveJobPanelState extends State<_ActiveJobPanel> {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(t('tech_active_job_sub').replaceAll('{client}', clientName).replaceAll('{earn}', (price - commission).toStringAsFixed(0)),
+              Text(t('tech_active_job_sub').replaceAll('{client}', clientName).replaceAll('{earn}', price.toStringAsFixed(0)),
                   style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary)),
               const SizedBox(height: 12),
               Row(
