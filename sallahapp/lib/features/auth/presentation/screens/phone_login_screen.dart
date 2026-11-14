@@ -138,13 +138,16 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1080),
                     child: isDesktop
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Expanded(child: _BrandPanel()),
-                              const SizedBox(width: 24),
-                              Expanded(child: _buildLoginCard(compact: false)),
-                            ],
+                        ? SizedBox(
+                            height: 620,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Expanded(child: _BrandPanel()),
+                                const SizedBox(width: 24),
+                                Expanded(child: _buildLoginCard(compact: false)),
+                              ],
+                            ),
                           )
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
