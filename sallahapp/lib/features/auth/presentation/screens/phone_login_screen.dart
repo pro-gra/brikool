@@ -278,8 +278,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 ]),
                 const SizedBox(height: 64),
                 Text(
-                  _t('Les bons pros.\\nAu bon moment.',
-                      'المهنيون المناسبون.\\nفي الوقت المناسب.'),
+                  _t('Les bons pros.\nAu bon moment.',
+                      'المهنيون المناسبون.\nفي الوقت المناسب.'),
                   style: const TextStyle(
                     color: _deepGreen, fontSize: 48,
                     height: 1.12, fontWeight: FontWeight.w900,
