@@ -15,7 +15,6 @@ import '../../../client/presentation/screens/chat_screen.dart';
 import '../../../client/presentation/screens/orders_screen.dart' show CallSupportButton;
 import '../../../client/presentation/screens/ai_assistant_bubble.dart';
 import '../../../client/presentation/bloc/language_cubit.dart';
-import 'wallet_deposit_screen.dart';
 
 class TechnicianHomeScreen extends StatefulWidget {
   const TechnicianHomeScreen({super.key, required this.profile});
@@ -41,11 +40,6 @@ class _TechnicianHomeScreenState extends State<TechnicianHomeScreen> {
           ],
         ),
       );
-      return;
-    }
-    if (value && profile.walletBalance < FirestoreService.minBalanceToGoOnline) {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => WalletDepositScreen(currentBalance: profile.walletBalance)));
       return;
     }
     setState(() => _busy = true);
@@ -175,30 +169,6 @@ class _Header extends StatelessWidget {
             children: [
               _HeaderStat(value: '${profile.jobsDone}', label: t('tech_stat_jobs')),
               _HeaderStat(value: profile.rating.toStringAsFixed(1), label: t('tech_stat_rating')),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => WalletDepositScreen(currentBalance: profile.walletBalance))),
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    decoration: BoxDecoration(
-                      color: profile.walletBalance < FirestoreService.minBalanceToGoOnline
-                          ? const Color(0x33FF5252)
-                          : Colors.white.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Column(
-                      children: [
-                        Text('${profile.walletBalance.toStringAsFixed(0)} MAD',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
-                        Text(t('tech_wallet_recharge_hint'),
-                            style: const TextStyle(fontSize: 9.5, color: Colors.white70)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ],

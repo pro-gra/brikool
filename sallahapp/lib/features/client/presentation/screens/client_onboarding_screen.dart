@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/localization/brikool_locale.dart';
 import '../../../../core/services/firestore_service.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../models/moroccan_cities.dart';
@@ -169,6 +170,8 @@ class _State extends State<ClientOnboardingScreen>
         child: Padding(
           padding: const EdgeInsets.fromLTRB(28, 36, 28, 0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Align(alignment: AlignmentDirectional.centerEnd, child: BrikoolLanguagePicker(compact: true)),
+            const SizedBox(height: 16),
             // logo pill
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -181,7 +184,7 @@ class _State extends State<ClientOnboardingScreen>
                 Container(width: 7, height: 7,
                     decoration: const BoxDecoration(color: _green, shape: BoxShape.circle)),
                 const SizedBox(width: 7),
-                const Text('brikol.ma',
+                const Text('brikool',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _green)),
               ]),
             ),

@@ -2,21 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/services/firestore_service.dart';
+import '../../../../core/localization/brikool_locale.dart';
 import '../../../company/presentation/screens/company_registration_screen.dart';
 import '../../../client/presentation/screens/client_onboarding_screen.dart';
 import '../../../technician/presentation/screens/technician_onboarding_screen.dart';
 
-// ── Minimalist Brand Tokens ──────────────────────────────────────────────────
-const _kBrandGreen = Color(0xFF0F8A54);
-const _kBrandTeal  = Color(0xFF027A87);
-const _kDarkInk    = Color(0xFF0F172A);
-const _kMuted      = Color(0xFF64748B);
-const _kBg         = Color(0xFFFAFBFC);
-const _kBorder     = Color(0xFFE2E8F0);
-
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
-
   @override
   State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
 }
@@ -24,304 +16,146 @@ class RoleSelectionScreen extends StatefulWidget {
 class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   final _fs = FirestoreService();
   bool _loading = false;
-  bool _step2 = false;
-  int _activeChoice = 0; // 0: Left, 1: Right
+  String _choice = 'client';
 
-  Future<void> _handleConfirm() async {
-    if (!_step2) {
-      if (_activeChoice == 0) {
-        setState(() {
-          _step2 = true;
-          _activeChoice = 0;
-        });
-      } else {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const CompanyRegistrationScreen()),
-        );
-      }
+  String tr(String fr, String ar, String darija) =>
+      BrikoolLocale.text(fr, ar: ar, darija: darija);
+
+  Future<void> _confirm() async {
+    if (_choice == 'company') {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const CompanyRegistrationScreen(),
+      ));
       return;
     }
-
-    final role = _activeChoice == 0 ? 'client' : 'technician';
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
+    if (user == null || _loading) return;
     setState(() => _loading = true);
     try {
-      await _fs.setUserRole(user.uid, role);
-    } catch (_) {}
-
-    if (!mounted) return;
-
-    if (role == 'client') {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ClientOnboardingScreen()),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const TechnicianOnboardingScreen()),
-      );
+      await _fs.setUserRole(user.uid, _choice);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (_) => _choice == 'client'
+            ? const ClientOnboardingScreen()
+            : const TechnicianOnboardingScreen(),
+      ));
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(tr('Impossible d’enregistrer votre choix. Réessayez.',
+              'تعذر حفظ اختيارك. حاول مرة أخرى.', 'ما قدرناش نحفظو الاختيار ديالك. عاود حاول.')),
+        ));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isFirstStep = !_step2;
-
-    final leftTitle = isFirstStep ? 'شخص عادي' : 'كليان';
-    final leftDesc = isFirstStep ? 'خدمات منزلية وسيارات' : 'كنقلب على تقني لحل المشكل';
-    final leftIcon = isFirstStep ? Icons.person_rounded : Icons.search_rounded;
-
-    final rightTitle = isFirstStep ? 'شركة / مقاول' : 'حِرَفي / تقني';
-    final rightDesc = isFirstStep ? 'مشاريع وصفقات كبرى' : 'باغي نخدم وندخل مدخول';
-    final rightIcon = isFirstStep ? Icons.domain_rounded : Icons.handyman_rounded;
-
-    return Scaffold(
-      backgroundColor: _kBg,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Top Navigation & Stepper ─────────────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (_step2)
-                    IconButton.filledTonal(
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: _kBorder),
-                      ),
-                      onPressed: () => setState(() => _step2 = false),
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: _kDarkInk),
-                    )
-                  else
-                    const SizedBox(width: 40),
-                  // Progress Dots
-                  Row(
-                    children: [
-                      _StepDot(isActive: true),
-                      const SizedBox(width: 6),
-                      _StepDot(isActive: _step2),
-                    ],
-                  ),
-                  const SizedBox(width: 40),
-                ],
-              ),
-              const SizedBox(height: 36),
-
-              // ── Headline ────────────────────────────────────────────────
-              Center(
-                child: Text(
-                  _step2 ? 'شنو هو دورك؟' : 'مرحباً بك فـ brikool',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    color: _kDarkInk,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: Text(
-                  _step2 ? 'حدد كيفاش بغيتي تستعمل التطبيق' : 'اختار نوع الحساب اللي يناسبك',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: _kMuted),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // ── Dynamic 2-Panel Minimal Deck ────────────────────────────
-              Expanded(
-                child: Row(
+    return ValueListenableBuilder<BrikoolLanguage>(
+      valueListenable: BrikoolLocale.language,
+      builder: (context, language, _) {
+        final fr = language == BrikoolLanguage.fr;
+        final ar = language == BrikoolLanguage.ar;
+        final title = fr ? 'Comment souhaitez-vous utiliser Brikool ?'
+            : ar ? 'كيف تريد استخدام بريكول؟' : 'كيفاش بغيتي تستعمل بريكول؟';
+        final subtitle = fr ? 'Choisissez votre parcours. Vous pourrez compléter votre profil ensuite.'
+            : ar ? 'اختر نوع حسابك. يمكنك إكمال ملفك الشخصي لاحقاً.'
+            : 'اختار نوع الحساب ديالك، وكمل المعلومات من بعد.';
+        final choices = <(String,String,String,String,IconData)>[
+          ('client',
+            fr ? 'Trouver un professionnel' : ar ? 'أبحث عن محترف' : 'كنقلب على تقني',
+            fr ? 'Pour vos réparations et services du quotidien' : ar ? 'لإصلاحاتك وخدماتك اليومية' : 'لإصلاحات وخدمات الدار',
+            fr ? 'CLIENT' : ar ? 'زبون' : 'زبون',
+            Icons.home_repair_service_rounded),
+          ('technician',
+            fr ? 'Proposer mes services' : ar ? 'أقدم خدماتي' : 'باغي نخدم كتقني',
+            fr ? 'Recevez des demandes et développez votre activité' : ar ? 'استقبل الطلبات وطوّر عملك' : 'استقبل الطلبات وكبر الخدمة ديالك',
+            fr ? 'PRO' : ar ? 'مهني' : 'مهني',
+            Icons.handyman_rounded),
+          ('company',
+            fr ? 'Inscrire mon entreprise' : ar ? 'تسجيل شركتي' : 'نسجل الشركة ديالي',
+            fr ? 'Gérez vos projets et demandes de devis' : ar ? 'أدر مشاريعك وطلبات عروض الأسعار' : 'سير المشاريع وطلبات الأثمنة',
+            fr ? 'ENTREPRISE' : ar ? 'شركة' : 'شركة',
+            Icons.domain_rounded),
+        ];
+        return Directionality(
+          textDirection: BrikoolLocale.direction,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF6F9F7),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: _CleanRoleCard(
-                        title: leftTitle,
-                        subtitle: leftDesc,
-                        icon: leftIcon,
-                        isSelected: _activeChoice == 0,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _activeChoice = 0);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _CleanRoleCard(
-                        title: rightTitle,
-                        subtitle: rightDesc,
-                        icon: rightIcon,
-                        isSelected: _activeChoice == 1,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _activeChoice = 1);
-                        },
-                      ),
-                    ),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                      Row(children: [
+                        ClipRRect(borderRadius: BorderRadius.circular(11),
+                          child: Image.asset('assets/images/brikol_app_icon_192.png', width: 38, height: 38)),
+                        const SizedBox(width: 9),
+                        const Text('brikool', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900)),
+                      ]),
+                      const BrikoolLanguagePicker(compact: true),
+                    ]),
+                    const SizedBox(height: 38),
+                    Text(title, textAlign: TextAlign.start,
+                      style: const TextStyle(fontSize: 27, height: 1.18, fontWeight: FontWeight.w900, color: Color(0xFF15251C))),
+                    const SizedBox(height: 10),
+                    Text(subtitle, style: const TextStyle(fontSize: 14, height: 1.55, color: Color(0xFF738078))),
+                    const SizedBox(height: 28),
+                    Expanded(child: ListView.separated(
+                      itemCount: choices.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 13),
+                      itemBuilder: (context, index) {
+                        final item = choices[index];
+                        final selected = _choice == item.$1;
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(22),
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _choice = item.$1);
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(color: selected ? const Color(0xFF0F8A54) : const Color(0xFFE5ECE7), width: selected ? 2 : 1),
+                              boxShadow: selected ? [BoxShadow(color: const Color(0xFF0F8A54).withOpacity(.09), blurRadius: 22, offset: const Offset(0, 8))] : [],
+                            ),
+                            child: Row(children: [
+                              Container(width: 52, height: 52,
+                                decoration: BoxDecoration(color: selected ? const Color(0xFFEAF5EE) : const Color(0xFFF3F6F4), borderRadius: BorderRadius.circular(16)),
+                                child: Icon(item.$5, color: const Color(0xFF0F8A54), size: 25)),
+                              const SizedBox(width: 14),
+                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text(item.$2, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w900, color: Color(0xFF1D2A22))),
+                                const SizedBox(height: 5),
+                                Text(item.$3, style: const TextStyle(fontSize: 12.5, height: 1.4, color: Color(0xFF78847D))),
+                              ])),
+                              Icon(selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                                color: selected ? const Color(0xFF0F8A54) : const Color(0xFFD3DDD6), size: 23),
+                            ]),
+                          ),
+                        );
+                      },
+                    )),
+                    SizedBox(height: 58, child: FilledButton(
+                      onPressed: _loading ? null : _confirm,
+                      style: FilledButton.styleFrom(backgroundColor: const Color(0xFF0F8A54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
+                      child: _loading
+                        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : Text(tr('Continuer', 'متابعة', 'كمل'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                    )),
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
-
-              // ── Clean Floating Action Button ────────────────────────────
-              SizedBox(
-                height: 56,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _kDarkInk,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: _loading ? null : _handleConfirm,
-                  child: _loading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _step2 ? 'تأكيد ودخول' : 'متابعة',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 18),
-                          ],
-                        ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Modern Clean Selection Card ──────────────────────────────────────────────
-class _CleanRoleCard extends StatelessWidget {
-  const _CleanRoleCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? _kBrandGreen : _kBorder,
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? _kBrandGreen.withValues(alpha: 0.12)
-                  : Colors.black.withValues(alpha: 0.02),
-              blurRadius: isSelected ? 18 : 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? _kBrandGreen : const Color(0xFFF1F5F9),
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : _kMuted,
-                size: 26,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: isSelected ? _kDarkInk : _kDarkInk.withValues(alpha: 0.75),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              style: const TextStyle(
-                fontSize: 12,
-                color: _kMuted,
-                height: 1.35,
-              ),
-            ),
-            const SizedBox(height: 16),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? _kBrandGreen : Colors.transparent,
-                border: Border.all(
-                  color: isSelected ? _kBrandGreen : _kBorder,
-                  width: 1.5,
-                ),
-              ),
-              child: isSelected
-                  ? const Icon(Icons.check, size: 13, color: Colors.white)
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Top Stepper Indicator ────────────────────────────────────────────────────
-class _StepDot extends StatelessWidget {
-  const _StepDot({required this.isActive});
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: isActive ? 24 : 8,
-      height: 6,
-      decoration: BoxDecoration(
-        color: isActive ? _kBrandGreen : _kBorder,
-        borderRadius: BorderRadius.circular(10),
-      ),
+        );
+      },
     );
   }
 }

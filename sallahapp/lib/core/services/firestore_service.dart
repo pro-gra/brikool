@@ -543,11 +543,9 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       throw Exception('Vous avez déjà une commande en cours. Terminez-la avant d\'en accepter une autre.');
     }
     final requestRef = _requests.doc(requestId);
-    final techRef = _technicians.doc(techId);
     final safeTransportFee = transportFeeMad.clamp(0, maxTransportFeeMad);
     await _db.runTransaction((transaction) async {
       final requestSnap = await transaction.get(requestRef);
-      final techSnap = await transaction.get(techRef);
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'pending') {
         throw Exception('Cette demande n\'est plus disponible.');
       }
@@ -569,7 +567,6 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
 
   Future<void> techGoEnRoute({required String requestId, required String techId}) async {
     final requestRef = _requests.doc(requestId);
-    final techRef = _technicians.doc(techId);
     await _db.runTransaction((transaction) async {
       final requestSnap = await transaction.get(requestRef);
       final techSnap = await transaction.get(techRef);
