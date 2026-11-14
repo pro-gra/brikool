@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/firestore_service.dart';
 import '../../../../core/widgets/qr_scanner_screen.dart';
@@ -729,6 +731,44 @@ class _InfoPill extends StatelessWidget {
   }
 }
 
+class _JobPhotoAction extends StatelessWidget {
+  const _JobPhotoAction({required this.icon, required this.title, required this.subtitle,
+    required this.count, required this.busy, required this.onTap});
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final int count;
+  final bool busy;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: busy ? null : onTap,
+    borderRadius: BorderRadius.circular(14),
+    child: Container(
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withOpacity(.12)),
+      ),
+      child: Row(children: [
+        Icon(icon, color: AppColors.primary, size: 23),
+        const SizedBox(width: 11),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+          const SizedBox(height: 2),
+          Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+        ])),
+        Text('$count', style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.primary)),
+        const SizedBox(width: 6),
+        busy ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+            : const Icon(Icons.add_a_photo_outlined, color: AppColors.primary, size: 19),
+      ]),
+    ),
+  );
+}
+
 // ── Active job panel ──────────────────────────────────────────────
 class _ActiveJobPanel extends StatefulWidget {
   const _ActiveJobPanel({required this.job, required this.profile, required this.firestoreService});
@@ -746,22 +786,127 @@ class _ActiveJobPanelState extends State<_ActiveJobPanel> {
   bool _working = false;
   bool _uploadingJournal = false;
   bool _cancelling = false;
+  StreamSubscription<Position>? _positionSubscription;
 
-  Future<void> _addJournalPhoto(String requestId, String label) async {
-    final t = context.read<LanguageCubit>().state.t;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.job['status'] == 'en_route') {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _startLiveLocation());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _ActiveJobPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldStatus = oldWidget.job['status'];
+    final newStatus = widget.job['status'];
+    if (oldStatus != newStatus || oldWidget.job['requestId'] != widget.job['requestId']) {
+      if (newStatus == 'en_route') {
+        _stopLiveLocation();
+        _startLiveLocation();
+      } else {
+        _stopLiveLocation();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _startLiveLocation() async {
+    if (!mounted || widget.job['status'] != 'en_route' || _positionSubscription != null) return;
     try {
-      final file = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-      if (file == null) return;
-      setState(() => _uploadingJournal = true);
-      final Uint8List bytes = await file.readAsBytes();
-      final url = await _storageService.upload(
-        path: 'requests/$requestId/journal_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        localPathOrIgnoredOnWeb: file.path, bytes: bytes, contentType: 'image/jpeg',
-      ).timeout(const Duration(seconds: 15));
-      await widget.firestoreService.addJournalEntry(requestId: requestId, url: url, label: label);
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Activez la localisation pour partager votre trajet avec le client.')),
+          );
+        }
+        return;
+      }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Autorisez la localisation pour activer le suivi en direct.')),
+          );
+        }
+        return;
+      }
+      final requestId = widget.job['requestId'] as String;
+      final initial = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      await widget.firestoreService.updateRequestTechnicianLocation(
+        requestId: requestId,
+        techId: widget.profile.techId,
+        location: GeoPoint(initial.latitude, initial.longitude),
+      );
+      _positionSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 15,
+        ),
+      ).listen((position) {
+        if (!mounted || widget.job['status'] != 'en_route') return;
+        widget.firestoreService.updateRequestTechnicianLocation(
+          requestId: requestId,
+          techId: widget.profile.techId,
+          location: GeoPoint(position.latitude, position.longitude),
+        ).catchError((_) {});
+      }, onError: (_) {});
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t('tech_journal_added').replaceAll('{label}', label))));
+          SnackBar(content: Text('Le suivi GPS n’a pas pu démarrer : $e')),
+        );
+      }
+    }
+  }
+
+  void _stopLiveLocation() {
+    _positionSubscription?.cancel();
+    _positionSubscription = null;
+  }
+
+  Future<void> _addBeforeAfterPhoto(String requestId, String stage) async {
+    final t = context.read<LanguageCubit>().state.t;
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => SafeArea(child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(leading: const Icon(Icons.camera_alt_rounded), title: Text(t('photo_take')),
+            onTap: () => Navigator.pop(ctx, ImageSource.camera)),
+          ListTile(leading: const Icon(Icons.photo_library_rounded), title: Text(t('photo_gallery')),
+            onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
+        ]),
+      )),
+    );
+    if (source == null) return;
+    try {
+      setState(() => _uploadingJournal = true);
+      final file = await _picker.pickImage(source: source, imageQuality: 78, maxWidth: 1600);
+      if (file == null) return;
+      final Uint8List bytes = await file.readAsBytes();
+      final url = await _storageService.upload(
+        path: 'requests/$requestId/${stage}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        localPathOrIgnoredOnWeb: file.path, bytes: bytes, contentType: 'image/jpeg',
+      ).timeout(const Duration(seconds: 30));
+      await widget.firestoreService.addJobPhoto(requestId: requestId, stage: stage, url: url);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(stage == 'before' ? t('photo_before_saved') : t('photo_after_saved'))),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -976,39 +1121,35 @@ class _ActiveJobPanelState extends State<_ActiveJobPanel> {
         const SizedBox(height: 16),
         if (status == 'en_route' || status == 'in_progress') ...[
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface, borderRadius: BorderRadius.circular(16),
+              color: AppColors.surface, borderRadius: BorderRadius.circular(18),
               border: Border.all(color: AppColors.border),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t('tech_journal_title'), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38)),
-                      onPressed: _uploadingJournal ? null : () => _addJournalPhoto(requestId, t('tech_journal_arrival')),
-                      child: Text(t('tech_journal_arrival'), style: const TextStyle(fontSize: 11.5)),
-                    )),
-                    const SizedBox(width: 8),
-                    Expanded(child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38)),
-                      onPressed: _uploadingJournal ? null : () => _addJournalPhoto(requestId, t('tech_journal_work')),
-                      child: Text(t('tech_journal_work'), style: const TextStyle(fontSize: 11.5)),
-                    )),
-                    const SizedBox(width: 8),
-                    Expanded(child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38)),
-                      onPressed: _uploadingJournal ? null : () => _addJournalPhoto(requestId, t('tech_journal_done')),
-                      child: Text(t('tech_journal_done'), style: const TextStyle(fontSize: 11.5)),
-                    )),
-                  ],
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t('job_photos_title'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Text(t('job_photos_subtitle'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              const SizedBox(height: 12),
+              if (status == 'en_route')
+                _JobPhotoAction(
+                  icon: Icons.camera_alt_rounded,
+                  title: t('photo_before_title'),
+                  subtitle: t('photo_before_hint'),
+                  count: (job['beforePhotos'] as List?)?.length ?? 0,
+                  busy: _uploadingJournal,
+                  onTap: () => _addBeforeAfterPhoto(requestId, 'before'),
                 ),
-              ],
-            ),
+              if (status == 'in_progress')
+                _JobPhotoAction(
+                  icon: Icons.check_circle_outline_rounded,
+                  title: t('photo_after_title'),
+                  subtitle: t('photo_after_hint'),
+                  count: (job['afterPhotos'] as List?)?.length ?? 0,
+                  busy: _uploadingJournal,
+                  onTap: () => _addBeforeAfterPhoto(requestId, 'after'),
+                ),
+            ]),
           ),
           const SizedBox(height: 14),
         ],
