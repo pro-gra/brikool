@@ -614,5 +614,19 @@
   "specialty_diploma_label": "الشهادة / الاعتماد (اختياري)",
   "specialty_diploma_sub": "صورة الشهادة أو الاعتماد المتعلق بهاد التخصص.",
   "specialty_submit_btn": "تقديم للموافقة",
-  "specialty_error_prefix": "غلط: "
+  "specialty_error_prefix": "غلط: ",
+  "job_photos_title": "صور العمل",
+  "job_photos_subtitle": "أضف صوراً حقيقية لتوثيق العمل.",
+  "photo_before_title": "قبل الإصلاح",
+  "photo_before_hint": "صوّر الحالة قبل بدء العمل.",
+  "photo_after_title": "بعد الإصلاح",
+  "photo_after_hint": "أظهر النتيجة بعد إتمام العمل.",
+  "photo_take": "التقاط صورة",
+  "photo_gallery": "اختيار من المعرض",
+  "photo_before_saved": "تم حفظ صورة ما قبل الإصلاح.",
+  "photo_after_saved": "تم حفظ صورة ما بعد الإصلاح.",
+  "tracking_title": "تتبع الفني",
+  "tracking_live": "الموقع يتحدث مباشرة",
+  "tracking_waiting": "في انتظار أول موقع للفني…",
+  "tracking_updated": "آخر تحديث:"
 }
