@@ -7,7 +7,8 @@ class AuthService {
       : _auth = firebaseAuth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  GoogleSignIn? _googleSignIn;
+  GoogleSignIn get _mobileGoogleSignIn => _googleSignIn ??= GoogleSignIn();
 
   ConfirmationResult? _webConfirmationResult;
   String? _mobileVerificationId;
@@ -81,7 +82,7 @@ class AuthService {
         provider.addScope('email');
         return await _auth.signInWithPopup(provider);
       } else {
-        final googleUser = await _googleSignIn.signIn();
+        final googleUser = await _mobileGoogleSignIn.signIn();
         if (googleUser == null) return null; // user cancelled
         final googleAuth = await googleUser.authentication;
         final credential = GoogleAuthProvider.credential(
@@ -156,7 +157,7 @@ class AuthService {
   Future<void> signOut() async {
     await Future.wait([
       _auth.signOut(),
-      if (!kIsWeb) _googleSignIn.signOut(),
+      if (!kIsWeb) _mobileGoogleSignIn.signOut(),
     ]);
   }
 }
