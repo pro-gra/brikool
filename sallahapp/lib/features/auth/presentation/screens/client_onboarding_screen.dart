@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/firestore_service.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../models/moroccan_cities.dart';
+import '../../../technician/presentation/screens/technician_onboarding_screen.dart';
 
 const Color _green = Color(0xFF087A4B);
 const Color _deepGreen = Color(0xFF06432F);
@@ -214,25 +215,101 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
 
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 15, 22, 10),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
       child: Row(
         children: [
-          const Text(
-            'brikool',
-            style: TextStyle(
-              color: _deepGreen,
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -.8,
+          Expanded(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: _switchToTechnician,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.handyman_outlined, color: _green, size: 17),
+                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Text(
+                        _t('Vous êtes professionnel ?', 'واش أنت مهني؟'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: _deepGreen,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward_rounded, color: _green, size: 14),
+                  ],
+                ),
+              ),
             ),
           ),
-          const Spacer(),
           _languageButton('FR', false),
           const SizedBox(width: 6),
           _languageButton('ع', true),
         ],
       ),
     );
+  }
+
+  Future<void> _switchToTechnician() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Directionality(
+        textDirection: _isArabic ? TextDirection.rtl : TextDirection.ltr,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          title: Text(_t('Passer au compte professionnel ?', 'الانتقال إلى حساب المهني؟')),
+          content: Text(_t(
+            'Votre inscription va continuer avec le parcours réservé aux artisans et techniciens.',
+            'غادي تكمل التسجيل عبر المسار الخاص بالحرفيين والتقنيين.',
+          )),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(_t('Annuler', 'إلغاء')),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: _green),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(_t('Continuer', 'متابعة')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+
+    try {
+      await _firestore.setUserRole(user.uid, 'technician');
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const TechnicianOnboardingScreen(),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = _t(
+          'Impossible de changer de parcours. Réessayez.',
+          'تعذر تغيير نوع الحساب. حاول مرة أخرى.',
+        );
+      });
+    }
   }
 
   Widget _languageButton(String label, bool arabic) {
@@ -292,9 +369,12 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
                 ),
               ),
               const Spacer(),
-              Text(
-                '${_step + 1} / 4',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text(
+                  '${_step + 1} / 4',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                ),
               ),
             ],
           ),
