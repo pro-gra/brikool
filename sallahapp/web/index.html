@@ -19,36 +19,6 @@
   <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
-  <script>
-    // ── LANDING PAGE REDIRECT ──
-    (function () {
-      try {
-        var hasAppParam  = window.location.search.indexOf('app=1') !== -1;
-        var isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                        || window.navigator.standalone === true;
-        if (hasAppParam || isStandalone) return;
-        var isAuthenticated = false;
-        try {
-          for (var i = 0; i < localStorage.length; i++) {
-            var key = localStorage.key(i);
-            if (key && key.indexOf('firebase:authUser') !== -1) {
-              var val = localStorage.getItem(key);
-              if (val && val !== 'null' && val.length > 10) {
-                isAuthenticated = true;
-                break;
-              }
-            }
-          }
-        } catch (e) {}
-        if (isAuthenticated) return;
-        window.location.replace('/landing.html');
-        throw new Error('__redirect__');
-      } catch (e) {
-        if (e.message === '__redirect__') return;
-      }
-    })();
-  </script>
-
 <script>
   // ── REGISTER FCM SERVICE WORKER ──
   // فقط على HTTPS — مش localhost
