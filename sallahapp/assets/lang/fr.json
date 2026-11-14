@@ -614,5 +614,19 @@
   "specialty_diploma_label": "Diplôme / Attestation (optionnel)",
   "specialty_diploma_sub": "Photo du diplôme ou certificat lié à cette spécialité.",
   "specialty_submit_btn": "Soumettre pour approbation",
-  "specialty_error_prefix": "Erreur: "
+  "specialty_error_prefix": "Erreur: ",
+  "job_photos_title": "Photos du chantier",
+  "job_photos_subtitle": "Ajoutez des photos réelles pour documenter le travail.",
+  "photo_before_title": "Avant les travaux",
+  "photo_before_hint": "Photographiez l’état initial avant de commencer.",
+  "photo_after_title": "Après les travaux",
+  "photo_after_hint": "Montrez le résultat une fois le travail terminé.",
+  "photo_take": "Prendre une photo",
+  "photo_gallery": "Choisir depuis la galerie",
+  "photo_before_saved": "Photo avant enregistrée.",
+  "photo_after_saved": "Photo après enregistrée.",
+  "tracking_title": "Suivi du technicien",
+  "tracking_live": "Position actualisée en direct",
+  "tracking_waiting": "En attente de la première position du technicien…",
+  "tracking_updated": "Dernière mise à jour :"
 }
