@@ -229,21 +229,95 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Align(alignment: AlignmentDirectional.centerEnd, child: _languageSwitch()),
-        const SizedBox(height: 34),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: _languageSwitch(),
+        ),
+        const SizedBox(height: 18),
+        _mobileIntro(),
+        const SizedBox(height: 18),
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 440),
             child: _loginCard(compact: true),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 22),
         Text(
-          _t('Une connexion simple et sécurisée', 'تسجيل دخول بسيط وآمن'),
+          _t('BRIKOOL  •  ESPACE CLIENT', 'بريكول  •  فضاء الزبناء'),
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Color(0xFF929E96), fontSize: 11),
+          style: const TextStyle(
+            color: Color(0xFF84948A),
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.1,
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _mobileIntro() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 27),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF073F2D), Color(0xFF0B8051)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Stack(
+        children: [
+          PositionedDirectional(
+            end: -25,
+            top: -35,
+            child: Container(
+              width: 130,
+              height: 130,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withOpacity(.10), width: 18),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _t('ESPACE CLIENT', 'فضاء الزبناء'),
+                style: const TextStyle(
+                  color: Color(0xFFB9D8C8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.4,
+                ),
+              ),
+              const SizedBox(height: 13),
+              Text(
+                _t('Connexion', 'تسجيل الدخول'),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -.6,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _t('Retrouvez vos services et vos demandes.',
+                    'تابع خدماتك وطلباتك بسهولة.'),
+                style: const TextStyle(
+                  color: Color(0xFFD7E9DF),
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -252,13 +326,70 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   }
 
   Widget _desktopLayout() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Align(alignment: AlignmentDirectional.centerEnd, child: _languageSwitch()),
-        const SizedBox(height: 28),
-        Center(
-          child: SizedBox(width: 460, child: _loginCard(compact: false)),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(end: 54),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _t('ESPACE CLIENT', 'فضاء الزبناء'),
+                  style: const TextStyle(
+                    color: _green,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  _t('Connectez-vous à votre compte.',
+                      'سجّل الدخول إلى حسابك.'),
+                  style: const TextStyle(
+                    color: _deepGreen,
+                    fontSize: 43,
+                    height: 1.12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -1.5,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  _t('Gérez vos demandes et retrouvez les professionnels qui vous accompagnent.',
+                      'تابع طلباتك وتواصل مع المهنيين الذين يقدمون لك الخدمات.'),
+                  style: const TextStyle(
+                    color: _muted,
+                    fontSize: 15,
+                    height: 1.7,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                _trustLine(Icons.verified_outlined,
+                    _t('Un parcours simple et sécurisé', 'تجربة سهلة وآمنة')),
+                const SizedBox(height: 13),
+                _trustLine(Icons.location_on_outlined,
+                    _t('Des services près de chez vous', 'خدمات قريبة منك')),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: _languageSwitch(),
+              ),
+              const SizedBox(height: 18),
+              _loginCard(compact: false),
+            ],
+          ),
         ),
       ],
     );
@@ -273,7 +404,28 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   }
 
   Widget _trustLine(IconData icon, String label) {
-    return const SizedBox.shrink();
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE4F0E8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: _green, size: 18),
+        ),
+        const SizedBox(width: 11),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF405148),
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _loginCard({required bool compact}) {
