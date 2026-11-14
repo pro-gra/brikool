@@ -559,7 +559,6 @@ class _EarningsChartCard extends StatelessWidget {
       final diff = today.difference(day).inDays;
       if (diff < 0 || diff > 6) continue;
       final price = (r['priceQuoteMAD'] as num?)?.toDouble() ?? 0;
-      final commission = (r['commissionMAD'] as num?)?.toDouble() ?? 0;
       totals[6 - diff] += price;
     }
     final maxValue = totals.fold<double>(0, (m, v) => v > m ? v : m);
