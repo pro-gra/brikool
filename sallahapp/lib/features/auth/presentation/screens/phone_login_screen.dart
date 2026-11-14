@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
 import 'otp_verify_screen.dart';
 import 'email_auth_screen.dart';
@@ -13,46 +12,41 @@ class PhoneLoginScreen extends StatefulWidget {
 }
 
 class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
-  final _authService = AuthService();
-  final _phoneController = TextEditingController();
-  final _focusNode = FocusNode();
+  final AuthService _authService = AuthService();
+  final TextEditingController _phoneController = TextEditingController();
+  final FocusNode _phoneFocus = FocusNode();
 
+  bool _isArabic = false;
   bool _loading = false;
   bool _googleLoading = false;
-  bool _focused = false;
   String? _error;
 
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(_handleFocusChange);
-  }
+  static const Color _green = Color(0xFF087A4B);
+  static const Color _deepGreen = Color(0xFF063D2B);
+  static const Color _ink = Color(0xFF17251E);
+  static const Color _muted = Color(0xFF718078);
+  static const Color _line = Color(0xFFE7ECE8);
 
-  void _handleFocusChange() {
-    if (mounted) setState(() => _focused = _focusNode.hasFocus);
-  }
+  String _t(String fr, String ar) => _isArabic ? ar : fr;
 
   @override
   void dispose() {
     _phoneController.dispose();
-    _focusNode.removeListener(_handleFocusChange);
-    _focusNode.dispose();
+    _phoneFocus.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    final rawNumber = _phoneController.text.trim();
-
-    if (rawNumber.isEmpty) {
-      setState(() => _error = 'Veuillez saisir votre numéro de téléphone.');
-      return;
-    }
-    if (rawNumber.length != 9) {
-      setState(() => _error = 'Veuillez saisir un numéro marocain valide.');
+    final number = _phoneController.text.trim();
+    if (number.length != 9) {
+      setState(() => _error = _t(
+        'Entrez un numéro marocain valide à 9 chiffres.',
+        'يرجى إدخال رقم هاتف مغربي صحيح من 9 أرقام.',
+      ));
       return;
     }
 
-    final phoneNumber = '+212$rawNumber';
+    final phone = '+212$number';
     FocusScope.of(context).unfocus();
     setState(() {
       _loading = true;
@@ -60,18 +54,16 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     });
 
     await _authService.sendOtp(
-      phoneNumber: phoneNumber,
+      phoneNumber: phone,
       onCodeSent: () {
         if (!mounted) return;
         setState(() => _loading = false);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => OtpVerifyScreen(
-              authService: _authService,
-              phoneNumber: phoneNumber,
-            ),
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => OtpVerifyScreen(
+            authService: _authService,
+            phoneNumber: phone,
           ),
-        );
+        ));
       },
       onError: (message) {
         if (!mounted) return;
@@ -83,411 +75,567 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     );
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _google() async {
     setState(() {
       _googleLoading = true;
       _error = null;
     });
-
     try {
-      final result = await _authService.signInWithGoogle();
-      if (result == null && mounted) {
-        setState(() => _googleLoading = false);
-      }
-    } catch (error) {
+      await _authService.signInWithGoogle();
+      if (mounted) setState(() => _googleLoading = false);
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _googleLoading = false;
-        _error = error.toString().replaceFirst('Exception: ', '');
+        _error = e.toString().replaceFirst('Exception: ', '');
       });
     }
   }
 
-  void _openEmail() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => EmailAuthScreen(authService: _authService),
-      ),
-    );
+  void _email() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => EmailAuthScreen(authService: _authService),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F7),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(
-                24,
-                22,
-                24,
-                keyboardInset > 0 ? keyboardInset + 20 : 28,
-              ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 50,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildHeader(),
-                        const SizedBox(height: 64),
-                        const Text(
-                          'Bienvenue chez brikool.',
-                          style: TextStyle(
-                            color: Color(0xFF17231B),
-                            fontSize: 30,
-                            height: 1.15,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Connectez-vous pour trouver un professionnel de confiance, près de chez vous.',
-                          style: TextStyle(
-                            color: Color(0xFF758078),
-                            fontSize: 15,
-                            height: 1.55,
-                          ),
-                        ),
-                        const SizedBox(height: 38),
-                        const Text(
-                          'NUMÉRO DE TÉLÉPHONE',
-                          style: TextStyle(
-                            color: Color(0xFF526057),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        _buildPhoneField(),
-                        if (_error != null) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.error_outline_rounded,
-                                color: Color(0xFFB42318),
-                                size: 17,
-                              ),
-                              const SizedBox(width: 7),
-                              Expanded(
-                                child: Text(
-                                  _error!,
-                                  style: const TextStyle(
-                                    color: Color(0xFFB42318),
-                                    fontSize: 12,
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        const SizedBox(height: 18),
-                        SizedBox(
-                          height: 54,
-                          child: ElevatedButton(
-                            onPressed: _loading ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              disabledBackgroundColor:
-                                  AppColors.primary.withOpacity(.65),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _loading
-                                ? const SizedBox(
-                                    width: 21,
-                                    height: 21,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Continuer',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 26),
-                        Row(
-                          children: [
-                            const Expanded(
-                              child: Divider(color: Color(0xFFE1E7E2)),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 14),
-                              child: Text(
-                                'OU',
-                                style: TextStyle(
-                                  color: Colors.blueGrey.shade400,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ),
-                            const Expanded(
-                              child: Divider(color: Color(0xFFE1E7E2)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 22),
-                        _SocialButton(
-                          label: 'Continuer avec Google',
-                          icon: const _GoogleIcon(),
-                          loading: _googleLoading,
-                          onTap: _googleLoading ? null : _signInWithGoogle,
-                        ),
-                        const SizedBox(height: 12),
-                        _SocialButton(
-                          label: 'Continuer avec e-mail',
-                          icon: const Icon(
-                            Icons.mail_outline_rounded,
-                            size: 19,
-                            color: Color(0xFF344139),
-                          ),
-                          loading: false,
-                          onTap: _openEmail,
-                        ),
-                        const SizedBox(height: 28),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.lock_outline_rounded,
-                              size: 14,
-                              color: Color(0xFF7A887F),
-                            ),
-                            SizedBox(width: 7),
-                            Flexible(
-                              child: Text(
-                                'Connexion sécurisée. Vos données restent protégées.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Color(0xFF89948D),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 42),
-                        const Center(
-                          child: Text(
-                            'LES SERVICES À DOMICILE, SIMPLEMENT.',
-                            style: TextStyle(
-                              color: Color(0xFFA0AAA3),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+    return Directionality(
+      textDirection: _isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF2F5F2),
+        body: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFF8FAF8),
+                      Color(0xFFEDF3EF),
+                      Color(0xFFF5F7F5),
+                    ],
                   ),
                 ),
               ),
-            );
-          },
+            ),
+            Positioned(
+              top: -150,
+              right: -105,
+              child: Container(
+                width: 390,
+                height: 390,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF0B8050).withOpacity(.075),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -190,
+              left: -130,
+              child: Container(
+                width: 440,
+                height: 440,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF9ABBA6).withOpacity(.13),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 7,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0B8050), Color(0xFF9CC8AD)],
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: LayoutBuilder(builder: (context, constraints) {
+                final desktop = constraints.maxWidth >= 850;
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1120),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: desktop ? 32 : 20,
+                            vertical: desktop ? 34 : 18,
+                          ),
+                          child: desktop
+                              ? _desktopLayout()
+                              : _mobileLayout(),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
+  Widget _languageSwitch() {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(.82),
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        _languageOption('FR', false),
+        _languageOption('ع', true),
+      ]),
+    );
+  }
+
+  Widget _languageOption(String label, bool arabic) {
+    final selected = _isArabic == arabic;
+    return GestureDetector(
+      onTap: () => setState(() {
+        _isArabic = arabic;
+        _error = null;
+      }),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Text(label, style: TextStyle(
+          color: selected ? _deepGreen : _muted,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+        )),
+      ),
+    );
+  }
+
+  Widget _mobileLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(11),
-          ),
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.home_repair_service_outlined,
-            color: Colors.white,
-            size: 21,
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: _languageSwitch(),
+        ),
+        const SizedBox(height: 18),
+        _mobileIntro(),
+        const SizedBox(height: 18),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: _loginCard(compact: true),
           ),
         ),
-        const SizedBox(width: 10),
-        const Text(
-          'brikool',
-          style: TextStyle(
-            color: Color(0xFF17231B),
-            fontSize: 21,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.8,
-          ),
-        ),
-        const Spacer(),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: const Color(0xFFE4EAE5)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Text(
-            'MAROC',
-            style: TextStyle(
-              color: Color(0xFF526057),
-              fontSize: 9,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1,
-            ),
+        const SizedBox(height: 22),
+        Text(
+          _t('BRIKOOL  •  ESPACE CLIENT', 'بريكول  •  فضاء الزبناء'),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF84948A),
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.1,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPhoneField() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      height: 58,
+  Widget _mobileIntro() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 27),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _error != null
-              ? const Color(0xFFB42318)
-              : _focused
-                  ? AppColors.primary
-                  : const Color(0xFFDDE5DF),
-          width: _focused || _error != null ? 1.5 : 1,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF073F2D), Color(0xFF0B8051)],
         ),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('🇲🇦', style: TextStyle(fontSize: 18)),
-                SizedBox(width: 7),
-                Text(
-                  '+212',
-                  style: TextStyle(
-                    color: Color(0xFF344139),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+          PositionedDirectional(
+            end: -25,
+            top: -35,
+            child: Container(
+              width: 130,
+              height: 130,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withOpacity(.10), width: 18),
+              ),
             ),
           ),
-          Container(width: 1, height: 25, color: const Color(0xFFE1E7E2)),
-          Expanded(
-            child: TextField(
-              controller: _phoneController,
-              focusNode: _focusNode,
-              keyboardType: TextInputType.phone,
-              textInputAction: TextInputAction.done,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(9),
-              ],
-              onChanged: (_) {
-                if (_error != null) setState(() => _error = null);
-              },
-              onSubmitted: (_) => _submit(),
-              style: const TextStyle(
-                color: Color(0xFF17231B),
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.1,
-              ),
-              decoration: const InputDecoration(
-                hintText: '6XX XXX XXX',
-                hintStyle: TextStyle(
-                  color: Color(0xFFADB7B0),
-                  fontSize: 14,
-                  letterSpacing: .5,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _t('ESPACE CLIENT', 'فضاء الزبناء'),
+                style: const TextStyle(
+                  color: Color(0xFFB9D8C8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.4,
                 ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 14),
               ),
-            ),
+              const SizedBox(height: 13),
+              Text(
+                _t('Connexion', 'تسجيل الدخول'),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -.6,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _t('Retrouvez vos services et vos demandes.',
+                    'تابع خدماتك وطلباتك بسهولة.'),
+                style: const TextStyle(
+                  color: Color(0xFFD7E9DF),
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
-}
 
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({
-    required this.label,
-    required this.icon,
-    required this.loading,
-    required this.onTap,
-  });
+  Widget _mobileHeader() {
+    return const SizedBox.shrink();
+  }
 
-  final String label;
-  final Widget icon;
-  final bool loading;
-  final VoidCallback? onTap;
+  Widget _desktopLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(end: 54),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _t('ESPACE CLIENT', 'فضاء الزبناء'),
+                  style: const TextStyle(
+                    color: _green,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  _t('Connectez-vous à votre compte.',
+                      'سجّل الدخول إلى حسابك.'),
+                  style: const TextStyle(
+                    color: _deepGreen,
+                    fontSize: 43,
+                    height: 1.12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -1.5,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  _t('Gérez vos demandes et retrouvez les professionnels qui vous accompagnent.',
+                      'تابع طلباتك وتواصل مع المهنيين الذين يقدمون لك الخدمات.'),
+                  style: const TextStyle(
+                    color: _muted,
+                    fontSize: 15,
+                    height: 1.7,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                _trustLine(Icons.verified_outlined,
+                    _t('Un parcours simple et sécurisé', 'تجربة سهلة وآمنة')),
+                const SizedBox(height: 13),
+                _trustLine(Icons.location_on_outlined,
+                    _t('Des services près de chez vous', 'خدمات قريبة منك')),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: _languageSwitch(),
+              ),
+              const SizedBox(height: 18),
+              _loginCard(compact: false),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _desktopLanguageOption(String label, bool arabic) {
+    return _languageOption(label, arabic);
+  }
+
+  Widget _brandMark() {
+    return const SizedBox.shrink();
+  }
+
+  Widget _trustLine(IconData icon, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE4F0E8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: _green, size: 18),
+        ),
+        const SizedBox(width: 11),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF405148),
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _loginCard({required bool compact}) {
+    return Container(
+      padding: EdgeInsets.all(compact ? 22 : 34),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE4EBE6)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x17172F22),
+            blurRadius: 48, offset: Offset(0, 22),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _t('Connexion', 'تسجيل الدخول'),
+            style: const TextStyle(
+              color: _ink, fontSize: 26,
+              fontWeight: FontWeight.w900, letterSpacing: -.55,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            _t('Connectez-vous ou créez votre compte pour continuer.',
+                'سجّل الدخول أو أنشئ حسابك للمتابعة.'),
+            style: const TextStyle(color: _muted, fontSize: 12.5, height: 1.5),
+          ),
+          const SizedBox(height: 25),
+          Text(
+            _t('NUMÉRO DE TÉLÉPHONE', 'رقم الهاتف'),
+            textAlign: _isArabic ? TextAlign.right : TextAlign.left,
+            style: const TextStyle(
+              color: Color(0xFF59675F), fontSize: 10,
+              fontWeight: FontWeight.w800, letterSpacing: .9,
+            ),
+          ),
+          const SizedBox(height: 9),
+          _phoneField(),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Text(_error!, style: const TextStyle(
+              color: Color(0xFFB42318), fontSize: 12, height: 1.4,
+            )),
+          ],
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: _loading ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _green, foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: _loading
+                  ? const SizedBox(
+                      width: 20, height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white,
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(_t('Continuer avec mon numéro', 'المتابعة برقم الهاتف'),
+                            style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w800,
+                            )),
+                        const SizedBox(width: 8),
+                        Icon(_isArabic ? Icons.arrow_back_rounded : Icons.arrow_forward_rounded, size: 17),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(children: [
+            const Expanded(child: Divider(color: _line)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(_t('OU', 'أو'), style: const TextStyle(
+                color: Color(0xFF9AA49D), fontSize: 10,
+                fontWeight: FontWeight.w800, letterSpacing: 1,
+              )),
+            ),
+            const Expanded(child: Divider(color: _line)),
+          ]),
+          const SizedBox(height: 17),
+          _socialButton(
+            label: _t('Continuer avec Google', 'المتابعة باستخدام Google'),
+            icon: const _GoogleMark(),
+            onPressed: _googleLoading ? null : _google,
+            loading: _googleLoading,
+          ),
+          const SizedBox(height: 10),
+          _socialButton(
+            label: _t('Continuer avec e-mail', 'المتابعة بالبريد الإلكتروني'),
+            icon: const Icon(Icons.mail_outline_rounded, size: 18, color: _ink),
+            onPressed: _email,
+          ),
+          const SizedBox(height: 19),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Icon(Icons.shield_outlined, size: 14, color: Color(0xFF87948B)),
+            const SizedBox(width: 6),
+            Flexible(child: Text(
+              _t('Connexion sécurisée · Vos données restent protégées',
+                  'اتصال آمن · بياناتك محمية'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF87948B), fontSize: 10.5),
+            )),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _phoneField() {
+    return Container(
+      height: 58,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(
+          color: _error == null ? const Color(0xFFDCE5DE) : const Color(0xFFB42318),
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 13),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('🇲🇦', style: TextStyle(fontSize: 18)),
+            SizedBox(width: 7),
+            Text('+212', style: TextStyle(
+              color: _ink, fontSize: 14, fontWeight: FontWeight.w800,
+            )),
+          ]),
+        ),
+        Container(width: 1, height: 25, color: _line),
+        Expanded(child: TextField(
+          controller: _phoneController,
+          focusNode: _phoneFocus,
+          keyboardType: TextInputType.phone,
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.left,
+          textInputAction: TextInputAction.done,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(9),
+          ],
+          onChanged: (_) {
+            if (_error != null) setState(() => _error = null);
+          },
+          onSubmitted: (_) => _submit(),
+          style: const TextStyle(
+            color: _ink, fontSize: 15, fontWeight: FontWeight.w600,
+            letterSpacing: 1,
+          ),
+          decoration: InputDecoration(
+            hintText: '6XX XXX XXX',
+            hintStyle: const TextStyle(color: Color(0xFFADB7B0), fontSize: 13),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            focusedErrorBorder: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            isDense: true,
+          ),
+        )),
+      ]),
+    );
+  }
+
+  Widget _socialButton({
+    required String label,
+    required Widget icon,
+    required VoidCallback? onPressed,
+    bool loading = false,
+  }) {
     return SizedBox(
-      height: 52,
+      height: 49,
       child: OutlinedButton(
-        onPressed: onTap,
+        onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF26332B),
+          foregroundColor: _ink,
           backgroundColor: Colors.white,
           side: const BorderSide(color: Color(0xFFDDE5DF)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: loading
             ? const SizedBox(
-                width: 19,
-                height: 19,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
-                ),
+                width: 18, height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2, color: _green),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   icon,
-                  const SizedBox(width: 10),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  const SizedBox(width: 9),
+                  Flexible(child: Text(label, style: const TextStyle(
+                    fontSize: 12.5, fontWeight: FontWeight.w700,
+                  ))),
                 ],
               ),
       ),
@@ -495,49 +643,13 @@ class _SocialButton extends StatelessWidget {
   }
 }
 
-class _GoogleIcon extends StatelessWidget {
-  const _GoogleIcon();
+class _GoogleMark extends StatelessWidget {
+  const _GoogleMark();
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 19,
-      height: 19,
-      child: CustomPaint(painter: _GooglePainter()),
-    );
+    return const Text('G', style: TextStyle(
+      color: Color(0xFF4285F4), fontSize: 19, fontWeight: FontWeight.w900,
+    ));
   }
-}
-
-class _GooglePainter extends CustomPainter {
-  const _GooglePainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final s = size.width;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = s * .22
-      ..strokeCap = StrokeCap.butt;
-
-    paint.color = const Color(0xFF4285F4);
-    canvas.drawArc(Rect.fromLTWH(0, 0, s, s), -1.57, 3.14, false, paint);
-    paint.color = const Color(0xFFEA4335);
-    canvas.drawArc(Rect.fromLTWH(0, 0, s, s), 1.57, 1.57, false, paint);
-    paint.color = const Color(0xFFFBBC05);
-    canvas.drawArc(Rect.fromLTWH(0, 0, s, s), 0, .78, false, paint);
-    paint.color = const Color(0xFF34A853);
-    canvas.drawArc(Rect.fromLTWH(0, 0, s, s), .78, .79, false, paint);
-    canvas.drawCircle(
-      Offset(s / 2, s / 2),
-      s * .28,
-      Paint()..color = Colors.white,
-    );
-    canvas.drawRect(
-      Rect.fromLTWH(s * .5, s * .38, s * .45, s * .24),
-      Paint()..color = const Color(0xFF4285F4),
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
