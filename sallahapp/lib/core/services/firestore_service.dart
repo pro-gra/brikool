@@ -17,7 +17,7 @@ class FirestoreService {
   CollectionReference<Map<String, dynamic>> get _walletTxns => _db.collection('wallet_transactions');
 
   static const List<String> activeStatuses = ['pending', 'accepted', 'en_route', 'in_progress'];
-  static const double commissionRate = 0.15;
+  static const double commissionRate = 0.0;
   static const double companyCommissionRate = 0.08;
   static const double minBalanceToGoOnline = 50;
   static const double lowBalanceBlockThreshold = 10;
@@ -551,17 +551,12 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'pending') {
         throw Exception('Cette demande n\'est plus disponible.');
       }
-      final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
       final budget = (requestSnap.data()!['budgetMAD'] as num).toDouble();
-      final commission = double.parse((budget * commissionRate).toStringAsFixed(2));
-      if (balance < commission) {
-        throw Exception('Solde insuffisant pour couvrir la commission.');
-      }
       transaction.update(requestRef, {
         'techId': techId,
         'priceQuoteMAD': budget,
         'transportFeeMAD': safeTransportFee,
-        'commissionMAD': commission,
+        'commissionMAD': 0,
         'status': 'accepted',
       });
     });
@@ -569,32 +564,15 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
 
   Future<void> techGoEnRoute({required String requestId, required String techId}) async {
     final requestRef = _requests.doc(requestId);
-    final techRef = _technicians.doc(techId);
     await _db.runTransaction((transaction) async {
       final requestSnap = await transaction.get(requestRef);
-      final techSnap = await transaction.get(techRef);
       if (!requestSnap.exists || requestSnap.data()!['status'] != 'accepted') {
         throw Exception('Statut de la demande invalide.');
       }
-      final commission = (requestSnap.data()!['commissionMAD'] as num).toDouble();
-      final balance = (techSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0;
-      if (balance < commission) {
-        throw Exception('Solde insuffisant pour couvrir la commission.');
-      }
-      final newBalance = double.parse((balance - commission).toStringAsFixed(2));
-      transaction.update(requestRef, {'status': 'en_route'});
-      transaction.update(techRef, {
-        'walletBalance': newBalance,
-        'isOnline': newBalance >= lowBalanceBlockThreshold,
-      });
-      final txnId = 'txn_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
-      transaction.set(_walletTxns.doc(txnId), {
-        'txnId': txnId,
-        'techId': techId,
-        'amountMAD': commission,
-        'type': 'commission_deduction',
-        'description': 'Commission for request $requestId',
-        'timestamp': FieldValue.serverTimestamp(),
+      // Technician wallet and commission deductions are paused for launch.
+      transaction.update(requestRef, {
+        'status': 'en_route',
+        'commissionMAD': 0,
       });
     });
   }
