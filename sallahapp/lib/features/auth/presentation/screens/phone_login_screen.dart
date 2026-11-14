@@ -22,6 +22,11 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   bool _focused = false;
   String? _error;
 
+  static const _ink = Color(0xFF17231B);
+  static const _muted = Color(0xFF758078);
+  static const _green = Color(0xFF0E8050);
+  static const _line = Color(0xFFE5EBE6);
+
   @override
   void initState() {
     super.initState();
@@ -113,199 +118,44 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F7),
+      backgroundColor: const Color(0xFFF4F7F4),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final isDesktop = constraints.maxWidth >= 820;
             return SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(
-                24,
-                22,
-                24,
-                keyboardInset > 0 ? keyboardInset + 20 : 28,
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 36 : 20,
+                vertical: isDesktop ? 28 : 20,
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 50,
+                  minHeight: constraints.maxHeight - (isDesktop ? 56 : 40),
                 ),
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildHeader(),
-                        const SizedBox(height: 64),
-                        const Text(
-                          'Bienvenue chez brikool.',
-                          style: TextStyle(
-                            color: Color(0xFF17231B),
-                            fontSize: 30,
-                            height: 1.15,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Connectez-vous pour trouver un professionnel de confiance, près de chez vous.',
-                          style: TextStyle(
-                            color: Color(0xFF758078),
-                            fontSize: 15,
-                            height: 1.55,
-                          ),
-                        ),
-                        const SizedBox(height: 38),
-                        const Text(
-                          'NUMÉRO DE TÉLÉPHONE',
-                          style: TextStyle(
-                            color: Color(0xFF526057),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        _buildPhoneField(),
-                        if (_error != null) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    constraints: const BoxConstraints(maxWidth: 1080),
+                    child: isDesktop
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Icon(
-                                Icons.error_outline_rounded,
-                                color: Color(0xFFB42318),
-                                size: 17,
-                              ),
-                              const SizedBox(width: 7),
-                              Expanded(
-                                child: Text(
-                                  _error!,
-                                  style: const TextStyle(
-                                    color: Color(0xFFB42318),
-                                    fontSize: 12,
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ),
+                              const Expanded(child: _BrandPanel()),
+                              const SizedBox(width: 24),
+                              Expanded(child: _buildLoginCard(compact: false)),
+                            ],
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildMobileBrand(),
+                              const SizedBox(height: 22),
+                              _buildLoginCard(compact: true),
+                              const SizedBox(height: 20),
+                              _buildFooter(),
                             ],
                           ),
-                        ],
-                        const SizedBox(height: 18),
-                        SizedBox(
-                          height: 54,
-                          child: ElevatedButton(
-                            onPressed: _loading ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              disabledBackgroundColor:
-                                  AppColors.primary.withOpacity(.65),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _loading
-                                ? const SizedBox(
-                                    width: 21,
-                                    height: 21,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Continuer',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 26),
-                        Row(
-                          children: [
-                            const Expanded(
-                              child: Divider(color: Color(0xFFE1E7E2)),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 14),
-                              child: Text(
-                                'OU',
-                                style: TextStyle(
-                                  color: Colors.blueGrey.shade400,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ),
-                            const Expanded(
-                              child: Divider(color: Color(0xFFE1E7E2)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 22),
-                        _SocialButton(
-                          label: 'Continuer avec Google',
-                          icon: const _GoogleIcon(),
-                          loading: _googleLoading,
-                          onTap: _googleLoading ? null : _signInWithGoogle,
-                        ),
-                        const SizedBox(height: 12),
-                        _SocialButton(
-                          label: 'Continuer avec e-mail',
-                          icon: const Icon(
-                            Icons.mail_outline_rounded,
-                            size: 19,
-                            color: Color(0xFF344139),
-                          ),
-                          loading: false,
-                          onTap: _openEmail,
-                        ),
-                        const SizedBox(height: 28),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.lock_outline_rounded,
-                              size: 14,
-                              color: Color(0xFF7A887F),
-                            ),
-                            SizedBox(width: 7),
-                            Flexible(
-                              child: Text(
-                                'Connexion sécurisée. Vos données restent protégées.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Color(0xFF89948D),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 42),
-                        const Center(
-                          child: Text(
-                            'LES SERVICES À DOMICILE, SIMPLEMENT.',
-                            style: TextStyle(
-                              color: Color(0xFFA0AAA3),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -316,52 +166,223 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildMobileBrand() {
     return Row(
       children: [
         Container(
-          width: 38,
-          height: 38,
+          width: 42,
+          height: 42,
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(11),
+            color: _green,
+            borderRadius: BorderRadius.circular(13),
           ),
-          alignment: Alignment.center,
           child: const Icon(
-            Icons.home_repair_service_outlined,
+            Icons.home_repair_service_rounded,
             color: Colors.white,
-            size: 21,
+            size: 22,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 11),
         const Text(
           'brikool',
           style: TextStyle(
-            color: Color(0xFF17231B),
-            fontSize: 21,
+            color: _ink,
+            fontSize: 24,
             fontWeight: FontWeight.w900,
-            letterSpacing: -0.8,
+            letterSpacing: -1.1,
           ),
         ),
         const Spacer(),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: const Color(0xFFE4EAE5)),
-            borderRadius: BorderRadius.circular(8),
+        const _MoroccoLabel(),
+      ],
+    );
+  }
+
+  Widget _buildLoginCard({required bool compact}) {
+    return Container(
+      padding: EdgeInsets.all(compact ? 22 : 38),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _line),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF183B28).withOpacity(.055),
+            blurRadius: 36,
+            offset: const Offset(0, 14),
           ),
-          child: const Text(
-            'MAROC',
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (!compact) ...[
+            Row(
+              children: const [
+                Text(
+                  'brikool',
+                  style: TextStyle(
+                    color: _ink,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -.8,
+                  ),
+                ),
+                Spacer(),
+                _MoroccoLabel(),
+              ],
+            ),
+            const SizedBox(height: 38),
+          ],
+          const Text(
+            'Ravi de vous revoir.',
             style: TextStyle(
-              color: Color(0xFF526057),
-              fontSize: 9,
+              color: _ink,
+              fontSize: 29,
+              height: 1.15,
               fontWeight: FontWeight.w800,
-              letterSpacing: 1,
+              letterSpacing: -1.1,
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 9),
+          const Text(
+            'Connectez-vous pour accéder à vos services et suivre vos demandes.',
+            style: TextStyle(color: _muted, fontSize: 14, height: 1.55),
+          ),
+          const SizedBox(height: 30),
+          const Text(
+            'NUMÉRO DE TÉLÉPHONE',
+            style: TextStyle(
+              color: Color(0xFF526057),
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.15,
+            ),
+          ),
+          const SizedBox(height: 9),
+          _buildPhoneField(),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: Color(0xFFB42318),
+                  size: 17,
+                ),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(
+                      color: Color(0xFFB42318),
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 15),
+          SizedBox(
+            height: 54,
+            child: ElevatedButton(
+              onPressed: _loading ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _green,
+                disabledBackgroundColor: _green.withOpacity(.65),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: _loading
+                  ? const SizedBox(
+                      width: 21,
+                      height: 21,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Continuer avec le téléphone',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.arrow_forward_rounded, size: 17),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 23),
+          Row(
+            children: const [
+              Expanded(child: Divider(color: _line)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 13),
+                child: Text(
+                  'OU',
+                  style: TextStyle(
+                    color: Color(0xFF9AA49D),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+              Expanded(child: Divider(color: _line)),
+            ],
+          ),
+          const SizedBox(height: 19),
+          _SocialButton(
+            label: 'Continuer avec Google',
+            icon: const _GoogleIcon(),
+            loading: _googleLoading,
+            onTap: _googleLoading ? null : _signInWithGoogle,
+          ),
+          const SizedBox(height: 11),
+          _SocialButton(
+            label: 'Continuer avec e-mail',
+            icon: const Icon(
+              Icons.mail_outline_rounded,
+              size: 19,
+              color: Color(0xFF344139),
+            ),
+            loading: false,
+            onTap: _openEmail,
+          ),
+          const SizedBox(height: 22),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shield_outlined,
+                size: 15,
+                color: Color(0xFF7A887F),
+              ),
+              SizedBox(width: 7),
+              Flexible(
+                child: Text(
+                  'Connexion sécurisée · Données protégées',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF89948D), fontSize: 11),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -370,13 +391,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       duration: const Duration(milliseconds: 150),
       height: 58,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFBFCFB),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _error != null
               ? const Color(0xFFB42318)
               : _focused
-                  ? AppColors.primary
+                  ? _green
                   : const Color(0xFFDDE5DF),
           width: _focused || _error != null ? 1.5 : 1,
         ),
@@ -417,7 +438,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
               },
               onSubmitted: (_) => _submit(),
               style: const TextStyle(
-                color: Color(0xFF17231B),
+                color: _ink,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.1,
@@ -435,6 +456,220 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return const Text(
+      'LES SERVICES À DOMICILE, SIMPLEMENT.',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Color(0xFFA0AAA3),
+        fontSize: 9,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1.1,
+      ),
+    );
+  }
+}
+
+class _BrandPanel extends StatelessWidget {
+  const _BrandPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 620),
+      padding: const EdgeInsets.all(42),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0C3928),
+        borderRadius: BorderRadius.circular(26),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF14583A), Color(0xFF092D20)],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.12),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white.withOpacity(.16)),
+                ),
+                child: const Icon(
+                  Icons.home_repair_service_rounded,
+                  color: Colors.white,
+                  size: 23,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'brikool',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.10),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Colors.white.withOpacity(.14)),
+            ),
+            child: const Text(
+              'VOTRE QUOTIDIEN, PLUS SIMPLE',
+              style: TextStyle(
+                color: Color(0xFFD6E9DC),
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.25,
+              ),
+            ),
+          ),
+          const SizedBox(height: 22),
+          const Text(
+            'Les bons pros.\nAu bon moment.',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 43,
+              height: 1.12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1.8,
+            ),
+          ),
+          const SizedBox(height: 17),
+          const Text(
+            'Trouvez facilement des professionnels de confiance pour vos besoins à domicile.',
+            style: TextStyle(
+              color: Color(0xFFD0E0D5),
+              fontSize: 15,
+              height: 1.65,
+            ),
+          ),
+          const SizedBox(height: 34),
+          const _BenefitRow(
+            icon: Icons.verified_user_outlined,
+            title: 'Des professionnels vérifiés',
+            subtitle: 'Des profils pour choisir en confiance',
+          ),
+          const SizedBox(height: 20),
+          const _BenefitRow(
+            icon: Icons.bolt_outlined,
+            title: 'Une demande en quelques instants',
+            subtitle: 'Un parcours simple, sans complication',
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Icon(
+                Icons.location_on_outlined,
+                color: Colors.white.withOpacity(.72),
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Pensé pour le Maroc',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(.78),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BenefitRow extends StatelessWidget {
+  const _BenefitRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(.10),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: Icon(icon, color: const Color(0xFFD8EBDD), size: 21),
+        ),
+        const SizedBox(width: 13),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: Color(0xFFBBD1C2),
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MoroccoLabel extends StatelessWidget {
+  const _MoroccoLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F7F4),
+        border: Border.all(color: const Color(0xFFE4EAE5)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Text(
+        'MAROC',
+        style: TextStyle(
+          color: Color(0xFF526057),
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1,
+        ),
       ),
     );
   }
