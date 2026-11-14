@@ -577,19 +577,79 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
     });
   }
 
+  /// Writes a technician's live position only to the active request.
+  /// The client can observe this document and render the moving marker.
+  Future<void> updateRequestTechnicianLocation({
+    required String requestId,
+    required String techId,
+    required GeoPoint location,
+  }) async {
+    final ref = _requests.doc(requestId);
+    final snap = await ref.get();
+    if (!snap.exists || snap.data()?['techId'] != techId || snap.data()?['status'] != 'en_route') {
+      throw Exception('Le suivi est disponible uniquement pendant le trajet vers le client.');
+    }
+    await ref.update({
+      'technicianLocation': location,
+      'technicianLocationUpdatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> clearRequestTechnicianLocation(String requestId) {
+    return _requests.doc(requestId).update({
+      'technicianLocation': FieldValue.delete(),
+      'technicianLocationUpdatedAt': FieldValue.delete(),
+    });
+  }
+
+  Future<void> addJobPhoto({
+    required String requestId,
+    required String stage,
+    required String url,
+  }) {
+    if (stage != 'before' && stage != 'after') {
+      throw ArgumentError.value(stage, 'stage');
+    }
+    return _requests.doc(requestId).update({
+      '${stage}Photos': FieldValue.arrayUnion([
+        {'url': url, 'uploadedAt': Timestamp.now()}
+      ]),
+    });
+  }
+
   Future<void> startJobWithOtp(String requestId, String enteredOtp) async {
-    final doc = await _requests.doc(requestId).get();
+    final ref = _requests.doc(requestId);
+    final doc = await ref.get();
     if (doc.data()?['otpCode'] != enteredOtp) {
       throw Exception('Code OTP incorrect');
     }
-    await _requests.doc(requestId).update({'status': 'in_progress'});
+    final beforePhotos = doc.data()?['beforePhotos'] as List? ?? const [];
+    if (beforePhotos.isEmpty) {
+      throw Exception('Ajoutez au moins une photo AVANT les travaux pour continuer.');
+    }
+    await ref.update({
+      'status': 'in_progress',
+      'technicianLocation': FieldValue.delete(),
+      'technicianLocationUpdatedAt': FieldValue.delete(),
+    });
   }
 
   Future<void> completeJob(String requestId, String techId) async {
+    final requestRef = _requests.doc(requestId);
+    final requestSnap = await requestRef.get();
+    if (requestSnap.data()?['techId'] != techId) {
+      throw Exception('Cette commande ne vous est pas attribuée.');
+    }
+    final afterPhotos = requestSnap.data()?['afterPhotos'] as List? ?? const [];
+    if (afterPhotos.isEmpty) {
+      throw Exception('Ajoutez au moins une photo APRÈS les travaux pour terminer.');
+    }
     final batch = _db.batch();
-    batch.update(_requests.doc(requestId), {
+    batch.update(requestRef, {
       'status': 'completed',
       'completedAt': FieldValue.serverTimestamp(),
+      'technicianLocation': FieldValue.delete(),
+      'technicianLocationUpdatedAt': FieldValue.delete(),
     });
     batch.set(_technicians.doc(techId),
         {'jobsDone': FieldValue.increment(1)}, SetOptions(merge: true));
