@@ -103,30 +103,86 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     return Directionality(
       textDirection: _isArabic ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F7F5),
-        body: SafeArea(
-          child: LayoutBuilder(builder: (context, constraints) {
-            final desktop = constraints.maxWidth >= 850;
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1120),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: desktop ? 32 : 20,
-                        vertical: desktop ? 34 : 18,
-                      ),
-                      child: desktop
-                          ? _desktopLayout()
-                          : _mobileLayout(),
-                    ),
+        backgroundColor: const Color(0xFFF2F5F2),
+        body: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFF8FAF8),
+                      Color(0xFFEDF3EF),
+                      Color(0xFFF5F7F5),
+                    ],
                   ),
                 ),
               ),
-            );
-          }),
+            ),
+            Positioned(
+              top: -150,
+              right: -105,
+              child: Container(
+                width: 390,
+                height: 390,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF0B8050).withOpacity(.075),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -190,
+              left: -130,
+              child: Container(
+                width: 440,
+                height: 440,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF9ABBA6).withOpacity(.13),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 7,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0B8050), Color(0xFF9CC8AD)],
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: LayoutBuilder(builder: (context, constraints) {
+                final desktop = constraints.maxWidth >= 850;
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1120),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: desktop ? 32 : 20,
+                            vertical: desktop ? 34 : 18,
+                          ),
+                          child: desktop
+                              ? _desktopLayout()
+                              : _mobileLayout(),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
@@ -136,7 +192,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F3F1),
+        color: Colors.white.withOpacity(.82),
         borderRadius: BorderRadius.circular(9),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -161,7 +217,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           borderRadius: BorderRadius.circular(24),
         ),
         child: Text(label, style: TextStyle(
-          color: selected ? _deepGreen : Colors.white,
+          color: selected ? _deepGreen : _muted,
           fontSize: 12,
           fontWeight: FontWeight.w800,
         )),
@@ -226,11 +282,11 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _line),
+        border: Border.all(color: const Color(0xFFE4EBE6)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x10172F22),
-            blurRadius: 35, offset: Offset(0, 14),
+            color: Color(0x17172F22),
+            blurRadius: 48, offset: Offset(0, 22),
           ),
         ],
       ),
