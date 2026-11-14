@@ -15,7 +15,6 @@ import '../../../../models/moroccan_cities.dart';
 import '../../../../models/technician_profile.dart';
 import '../../../../models/technician_skill.dart';
 import 'technician_home_screen.dart';
-import 'wallet_deposit_screen.dart';
 import 'technician_specialty_manager.dart';
 import 'planned_orders_screen.dart';
 import '../../../client/presentation/screens/ai_support_chat_screen.dart';
@@ -45,7 +44,6 @@ class _TechnicianShellState extends State<TechnicianShell> {
     NotificationService().registerRoute('specialty_approved', (requestId) => TechnicianHomeScreen(profile: widget.profile));
     NotificationService().registerRoute('specialty_rejected', (requestId) => TechnicianHomeScreen(profile: widget.profile));
     NotificationService().registerRoute('account_verified', (requestId) => TechnicianHomeScreen(profile: widget.profile));
-    NotificationService().registerRoute('wallet_low', (requestId) => WalletDepositScreen(currentBalance: widget.profile.walletBalance));
     await NotificationService().init(uid: uid, collection: 'technicians');
   }
 
@@ -152,7 +150,7 @@ class _DashboardTab extends StatelessWidget {
                         value: '${stats.active}', suffix: '', label: t('dash_in_progress'))),
                   ]),
                   const SizedBox(height: 16),
-                  _WalletCard(profile: live),
+                  _AvailabilityCard(profile: live),
                   const SizedBox(height: 16),
                   _EarningsChartCard(requests: requests),
                   const SizedBox(height: 16),
@@ -183,10 +181,10 @@ class _TechStats {
     for (final r in requests) {
       final status = r['status'] as String? ?? '';
       final price = (r['priceQuoteMAD'] as num?)?.toDouble() ?? 0;
-      final commission = (r['commissionMAD'] as num?)?.toDouble() ?? 0;
+      final commission = 0.0;
       switch (status) {
         case 'completed':
-          completed++; earnings += price - commission;
+          completed++; earnings += price;
           final rating = (r['clientRating'] as num?)?.toInt();
           if (rating != null) { ratingSum += rating; ratedCount++; }
         case 'cancelled': cancelled++;
@@ -337,35 +335,33 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-class _WalletCard extends StatelessWidget {
-  const _WalletCard({required this.profile});
+class _AvailabilityCard extends StatelessWidget {
+  const _AvailabilityCard({required this.profile});
   final TechnicianProfile profile;
 
   @override
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
-    final low = profile.walletBalance < FirestoreService.minBalanceToGoOnline;
+    final online = profile.isOnline;
+    final color = online ? AppColors.success : AppColors.textSecondary;
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: low ? AppColors.danger : AppColors.border)),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.border)),
       child: Row(children: [
-        Container(width: 42, height: 42,
-            decoration: BoxDecoration(color: low ? AppColors.dangerLight : AppColors.primaryLight, borderRadius: BorderRadius.circular(14)),
-            child: Icon(Icons.account_balance_wallet_rounded, color: low ? AppColors.danger : AppColors.primary, size: 20)),
-        const SizedBox(width: 12),
+        Container(width: 46, height: 46,
+          decoration: BoxDecoration(color: online ? AppColors.successLight : AppColors.background, borderRadius: BorderRadius.circular(15)),
+          child: Icon(online ? Icons.wifi_tethering_rounded : Icons.pause_circle_outline_rounded, color: color, size: 23)),
+        const SizedBox(width: 13),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${profile.walletBalance.toStringAsFixed(2)} MAD',
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-          Text(low ? t('dash_wallet_low') : t('dash_wallet_label'),
-              style: TextStyle(fontSize: 11.5, color: low ? AppColors.danger : AppColors.textSecondary)),
+          Text(online ? t('tech_online_status') : t('tech_offline_status'),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 3),
+          Text(online ? 'Vous pouvez recevoir des demandes.' : 'Activez votre disponibilité pour recevoir des demandes.',
+              style: const TextStyle(fontSize: 11.5, height: 1.4, color: AppColors.textSecondary)),
         ])),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(minimumSize: const Size(0, 40), padding: const EdgeInsets.symmetric(horizontal: 14)),
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => WalletDepositScreen(currentBalance: profile.walletBalance))),
-          child: Text(t('dash_recharge')),
-        ),
+        Container(width: 9, height: 9,
+          decoration: BoxDecoration(color: online ? AppColors.success : AppColors.textMuted, shape: BoxShape.circle)),
       ]),
     );
   }
@@ -564,7 +560,7 @@ class _EarningsChartCard extends StatelessWidget {
       if (diff < 0 || diff > 6) continue;
       final price = (r['priceQuoteMAD'] as num?)?.toDouble() ?? 0;
       final commission = (r['commissionMAD'] as num?)?.toDouble() ?? 0;
-      totals[6 - diff] += price - commission;
+      totals[6 - diff] += price;
     }
     final maxValue = totals.fold<double>(0, (m, v) => v > m ? v : m);
     final weekTotal = totals.fold<double>(0, (a, b) => a + b);
