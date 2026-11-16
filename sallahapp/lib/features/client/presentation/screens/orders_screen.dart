@@ -805,7 +805,7 @@ class OrderDetailScreen extends StatelessWidget {
               fs: fs,
               requestId: requestId,
               serviceLabel: serviceLabel,
-              chatEnabled: isActive,
+              chatEnabled: true,
               t: t,
             ),
           ),
