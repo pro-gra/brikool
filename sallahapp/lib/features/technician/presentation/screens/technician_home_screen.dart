@@ -10,6 +10,7 @@ import '../../../../core/services/firestore_service.dart';
 import '../../../../core/widgets/qr_scanner_screen.dart';
 import '../../../../models/technician_profile.dart';
 import '../../../../models/technician_skill.dart';
+import '../../../../models/service_intake_config.dart';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/storage_service.dart';
@@ -656,6 +657,23 @@ class _JobCardState extends State<_JobCard> {
                 decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
                 child: Text('« $description »', maxLines: 3, overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 12.5, fontStyle: FontStyle.italic, color: AppColors.textSecondary, height: 1.35)),
+              ),
+            ),
+          if ((job['serviceDetails'] as Map?)?.isNotEmpty == true)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: Container(
+                width: double.infinity, padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.primary.withOpacity(0.12))),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(t('intake_details_title'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 7),
+                  ...serviceIntakeFields(skillId).where((f) => ((job['serviceDetails'] as Map?)?[f.id]?.toString().trim().isNotEmpty ?? false)).map((field) {
+                    final value = (job['serviceDetails'] as Map)[field.id].toString();
+                    final display = value.startsWith('intake_') ? t(value) : value;
+                    return Padding(padding: const EdgeInsets.only(bottom: 4), child: Text('• ' + t(field.labelKey) + ': ' + display, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)));
+                  }),
+                ]),
               ),
             ),
           Padding(
