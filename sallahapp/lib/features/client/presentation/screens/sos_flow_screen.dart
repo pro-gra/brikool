@@ -11,6 +11,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/firestore_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../models/catalog.dart';
+import '../../../../models/service_intake_config.dart';
 import '../bloc/language_cubit.dart';
 import 'orders_screen.dart';
 
@@ -35,6 +36,7 @@ class _SosFlowScreenState extends State<SosFlowScreen> {
   final _picker = ImagePicker();
   final _storageService = StorageService();
   final List<(XFile, Uint8List)> _photos = [];
+  final Map<String, String> _serviceAnswers = {};
   final _aiService = AiService();
   PhotoDiagnosis? _diagnosis;
   bool _diagnosing = false;
@@ -172,6 +174,7 @@ class _SosFlowScreenState extends State<SosFlowScreen> {
         serviceLabel: _chosen!.label,
         budgetMad: budget,
         description: _descriptionController.text.trim(),
+        serviceDetails: Map<String, String>.from(_serviceAnswers),
         clientLat: lat ?? 33.5731,
         clientLng: lng ?? -7.5898,
         scheduledAt: _scheduledAt,
@@ -259,6 +262,7 @@ class _SosFlowScreenState extends State<SosFlowScreen> {
             1 => _DetailsStep(
                 offer: _chosen!,
                 descriptionController: _descriptionController,
+                serviceAnswers: _serviceAnswers,
                 photos: _photos,
                 onAddPhoto: _addPhoto,
                 onRemovePhoto: (i) => setState(() { _photos.removeAt(i); _diagnosis = null; }),
@@ -357,6 +361,7 @@ class _DetailsStep extends StatelessWidget {
   const _DetailsStep({
     required this.offer,
     required this.descriptionController,
+    required this.serviceAnswers,
     required this.photos,
     required this.onAddPhoto,
     required this.onRemovePhoto,
@@ -368,6 +373,7 @@ class _DetailsStep extends StatelessWidget {
   });
   final ServiceOffer offer;
   final TextEditingController descriptionController;
+  final Map<String, String> serviceAnswers;
   final List<(XFile, Uint8List)> photos;
   final VoidCallback onAddPhoto;
   final ValueChanged<int> onRemovePhoto;
@@ -406,6 +412,11 @@ class _DetailsStep extends StatelessWidget {
           controller: descriptionController,
           maxLines: 4,
           decoration: InputDecoration(hintText: t('sos_describe_hint')),
+        ),
+        const SizedBox(height: 18),
+        _ServiceIntakeSection(
+          skillId: offer.skillId,
+          answers: serviceAnswers,
         ),
         const SizedBox(height: 18),
         Text(t('sos_photos'),
@@ -507,6 +518,82 @@ class _DetailsStep extends StatelessWidget {
         const SizedBox(height: 28),
         ElevatedButton(onPressed: onContinue, child: Text(t('continue'))),
       ],
+    );
+  }
+}
+
+
+/// Service-specific structured questions. Answers are saved separately from
+/// the free-text description so technicians can review them before quoting.
+class _ServiceIntakeSection extends StatelessWidget {
+  const _ServiceIntakeSection({required this.skillId, required this.answers});
+  final String skillId;
+  final Map<String, String> answers;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.watch<LanguageCubit>().state.t;
+    final fields = serviceIntakeFields(skillId);
+    if (fields.isEmpty) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t('intake_details_title'),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          Text(t('intake_details_subtitle'),
+              style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+          const SizedBox(height: 12),
+          ...fields.map((field) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t(field.labelKey) + (field.required ? ' *' : ''),
+                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                if (field.isChoice)
+                  DropdownButtonFormField<String>(
+                    value: field.options.contains(answers[field.id]) ? answers[field.id] : null,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      hintText: t('intake_select_hint'),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    items: field.options.map((option) => DropdownMenuItem(
+                      value: option,
+                      child: Text(t(option), overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5)),
+                    )).toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      answers[field.id] = value;
+                    },
+                  )
+                else
+                  TextFormField(
+                    initialValue: answers[field.id] ?? '',
+                    keyboardType: field.id == 'quantity' || field.id == 'units' || field.id == 'points' || field.id == 'rooms'
+                        ? TextInputType.number : TextInputType.text,
+                    onChanged: (value) => answers[field.id] = value.trim(),
+                    decoration: InputDecoration(
+                      hintText: field.hintKey == null ? null : t(field.hintKey!),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+              ],
+            ),
+          )),
+        ],
+      ),
     );
   }
 }
