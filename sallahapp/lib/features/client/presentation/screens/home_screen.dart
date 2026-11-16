@@ -840,6 +840,28 @@ List<ServiceOffer> _launchServiceOffers(String Function(String) t) => [
   ServiceOffer(skillId: 'appliance', label: t('launch_appliance'), sublabel: t('launch_appliance_sub'), icon: Icons.kitchen_rounded, suggestedBudget: 250),
 ];
 
+void _showServiceSearch(BuildContext context, String Function(String) t) {
+  final offers = _launchServiceOffers(t);
+  showModalBottomSheet(
+    context: context, isScrollControlled: true, backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (ctx) => SafeArea(child: Padding(
+      padding: const EdgeInsets.all(18),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(t('services_heading'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 12),
+        ...offers.map((offer) => ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: CircleAvatar(backgroundColor: const Color(0xFFEAF5F0), child: Icon(offer.icon, color: const Color(0xFF0F5A47))),
+          title: Text(offer.label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(offer.sublabel), trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () { Navigator.pop(ctx); Navigator.of(context).push(MaterialPageRoute(builder: (_) => SosFlowScreen(preselected: offer))); },
+        )),
+      ]),
+    )),
+  );
+}
+
 void _showCategorySheet(BuildContext context, ServiceCategory category, LanguageState state) {
   final t = state.t;
   final offers = categoryCatalog(t)[category] ?? const <ServiceOffer>[];
