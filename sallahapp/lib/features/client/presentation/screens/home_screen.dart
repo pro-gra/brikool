@@ -1,5 +1,7 @@
 ﻿import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -139,26 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    if (user != null)
-                      SliverToBoxAdapter(
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 1140),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: isDesktop ? 28 : 0,
-                                right: isDesktop ? 28 : 0,
-                                top: 24,
-                              ),
-                              child: _TopTechniciansRail(
-                                city: _userProfile?['city'] as String? ?? '',
-                                firestoreService: _firestoreService,
-                                state: state,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                     const SliverToBoxAdapter(child: SizedBox(height: 110)),
                   ],
                 ),
@@ -839,6 +821,77 @@ List<ServiceOffer> _launchServiceOffers(String Function(String) t) => [
   ServiceOffer(skillId: 'printing', label: t('launch_printing'), sublabel: t('launch_printing_sub'), icon: Icons.print_rounded, suggestedBudget: 100),
   ServiceOffer(skillId: 'appliance', label: t('launch_appliance'), sublabel: t('launch_appliance_sub'), icon: Icons.kitchen_rounded, suggestedBudget: 250),
 ];
+
+class _ActiveOrderCard extends StatelessWidget {
+  const _ActiveOrderCard({required this.uid, required this.firestoreService, required this.state});
+  final String uid;
+  final FirestoreService firestoreService;
+  final LanguageState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = state.t;
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: firestoreService.streamActiveRequestForClient(uid),
+      builder: (context, snapshot) {
+        final order = snapshot.data;
+        if (order == null) return const SizedBox.shrink();
+        final status = order['status'] as String? ?? '';
+        final requestId = order['requestId'] as String;
+        final label = order['serviceLabel'] as String? ?? t('orders_title');
+        final techPoint = order['technicianLocation'];
+        final clientPoint = order['clientLocation'];
+        final hasTechLocation = status == 'en_route' && techPoint is GeoPoint;
+        final tech = hasTechLocation ? techPoint as GeoPoint : null;
+        final client = clientPoint is GeoPoint ? clientPoint : null;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE1ECE6)),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.035), blurRadius: 12, offset: const Offset(0, 4))],
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => OrderDetailScreen(requestId: requestId))),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(children: [
+                  Container(width: 42, height: 42, decoration: BoxDecoration(color: const Color(0xFFEAF5F0), borderRadius: BorderRadius.circular(13)),
+                    child: const Icon(Icons.handyman_rounded, color: Color(0xFF0F5A47))),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 3),
+                    Text(status == 'en_route' ? t('tracking_technician_on_way') : status == 'in_progress' ? t('status_in_progress') : status == 'pending' ? t('active_order_negotiating') : t('active_order_assigned'),
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF64746C))),
+                  ])),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF0F5A47)),
+                ]),
+              ),
+            ),
+            if (hasTechLocation && tech != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                child: SizedBox(
+                  height: 150,
+                  child: gmaps.GoogleMap(
+                    initialCameraPosition: gmaps.CameraPosition(target: gmaps.LatLng(tech.latitude, tech.longitude), zoom: 14),
+                    markers: {
+                      gmaps.Marker(markerId: const gmaps.MarkerId('technician'), position: gmaps.LatLng(tech.latitude, tech.longitude), infoWindow: gmaps.InfoWindow(title: t('tracking_technician'))),
+                      if (client != null) gmaps.Marker(markerId: const gmaps.MarkerId('client'), position: gmaps.LatLng(client.latitude, client.longitude), infoWindow: gmaps.InfoWindow(title: t('tracking_your_location'))),
+                    },
+                    zoomControlsEnabled: false, myLocationButtonEnabled: false,
+                    mapToolbarEnabled: false, compassEnabled: false,
+                  ),
+                ),
+              ),
+          ]),
+        );
+      },
+    );
+  }
+}
 
 void _showServiceSearch(BuildContext context, String Function(String) t) {
   final offers = _launchServiceOffers(t);
