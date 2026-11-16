@@ -312,7 +312,7 @@ class _ChooseStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final offers = sosOffers(t);
+    final offers = launchServiceOffers(t);
     return ListView.separated(
       itemCount: offers.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
