@@ -746,5 +746,9 @@
   "intake_over_seven_years": "Plus de 7 ans",
   "intake_error_hint": "Saisir le code affiché si présent",
   "intake_other": "Autre",
-  "intake_not_sure": "Je ne sais pas"
+  "intake_not_sure": "Je ne sais pas",
+  "intake_required_fields": "Veuillez renseigner les informations obligatoires pour mieux estimer le travail.",
+  "tracking_technician_on_way": "Le technicien est en route vers vous",
+  "tracking_technician": "Technicien",
+  "tracking_your_location": "Votre adresse"
 }
