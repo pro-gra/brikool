@@ -91,3 +91,12 @@ Map<ServiceCategory, List<ServiceOffer>> categoryCatalog(String Function(String)
     ServiceOffer(skillId: 'carwash', label: t('carwash_seats_label'),     sublabel: t('carwash_seats_sub'),     icon: Icons.chair_rounded,             suggestedBudget: 200),
   ],
 };
+/// The five services Brikool is actively launching with.
+/// Keep customer-facing discovery and request flows limited to this list.
+List<ServiceOffer> launchServiceOffers(String Function(String) t) => [
+  ServiceOffer(skillId: 'plumbing', label: t('launch_plumbing'), sublabel: t('launch_plumbing_sub'), icon: Icons.plumbing_rounded, suggestedBudget: 200),
+  ServiceOffer(skillId: 'electricity', label: t('launch_electricity'), sublabel: t('launch_electricity_sub'), icon: Icons.electrical_services_rounded, suggestedBudget: 200),
+  ServiceOffer(skillId: 'clim', label: t('launch_hvac'), sublabel: t('launch_hvac_sub'), icon: Icons.ac_unit_rounded, suggestedBudget: 300),
+  ServiceOffer(skillId: 'printing', label: t('launch_printing'), sublabel: t('launch_printing_sub'), icon: Icons.print_rounded, suggestedBudget: 100),
+  ServiceOffer(skillId: 'appliance', label: t('launch_appliance'), sublabel: t('launch_appliance_sub'), icon: Icons.kitchen_rounded, suggestedBudget: 250),
+];
