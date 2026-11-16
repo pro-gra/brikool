@@ -27,6 +27,7 @@ class TechnicianSkill {
     TechnicianSkill(id: 'aluminium', icon: Icons.window_rounded, label: 'Alu & vitrerie'),
     // Équipements
     TechnicianSkill(id: 'appliance', icon: Icons.kitchen_rounded, label: 'Électroménager'),
+    TechnicianSkill(id: 'printing', icon: Icons.print_rounded, label: 'Impression'),
     TechnicianSkill(id: 'clim', icon: Icons.ac_unit_rounded, label: 'Climatisation & froid'),
     TechnicianSkill(id: 'it', icon: Icons.computer_rounded, label: 'Informatique & TV'),
     TechnicianSkill(id: 'satellite', icon: Icons.satellite_alt_rounded, label: 'Parabole & caméras'),
