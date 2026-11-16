@@ -437,8 +437,6 @@ class _ChatScreenState extends State<ChatScreen> {
             onSelected: (value) {
               if (value == 'profile' && widget.techId != null) {
                 showTechnicianPublicProfile(context, widget.techId!);
-              } else if (value == 'delete') {
-                _confirmDelete(context);
               }
             },
             itemBuilder: (_) => [
@@ -453,16 +451,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                 ),
-              PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
-                    const SizedBox(width: 10),
-                    Text(t('delete'), style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w700, fontSize: 13.5)),
-                  ],
-                ),
-              ),
             ],
           ),
         ],
