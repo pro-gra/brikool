@@ -746,5 +746,9 @@
   "intake_over_seven_years": "أكثر من 7 سنين",
   "intake_error_hint": "دخل الكود اللي باين إلا كان",
   "intake_other": "آخر",
-  "intake_not_sure": "ما عارفش"
+  "intake_not_sure": "ما عارفش",
+  "intake_required_fields": "عمر المعلومات الضرورية باش يقدر التقني يحدد الخدمة والثمن مزيان.",
+  "tracking_technician_on_way": "التقني راه فالطريق لعندك",
+  "tracking_technician": "التقني",
+  "tracking_your_location": "العنوان ديالك"
 }
