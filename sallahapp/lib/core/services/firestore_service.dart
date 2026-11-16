@@ -259,6 +259,7 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
     required String serviceLabel,
     required double budgetMad,
     required String description,
+    Map<String, String> serviceDetails = const {},
     required double clientLat,
     required double clientLng,
     DateTime? scheduledAt,
@@ -280,6 +281,7 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
       'serviceType': 'sos_$skillId',
       'serviceLabel': serviceLabel,
       'description': description,
+      'serviceDetails': serviceDetails,
       'status': 'pending',
       'budgetMAD': budgetMad,
       'priceQuoteMAD': budgetMad,
@@ -1283,7 +1285,7 @@ Future<void> adminAdjustWallet(
     return _requests.where('clientId', isEqualTo: clientId).snapshots().map((snap) {
       final list = snap.docs
           .map((d) => {...d.data(), 'requestId': d.id})
-          .where((r) => r['techId'] != null && r['clientHiddenAt'] == null)
+          .where((r) => r['techId'] != null)
           .toList();
       list.sort((a, b) {
         final ta = (a['lastMessageAt'] ?? a['createdAt']);
