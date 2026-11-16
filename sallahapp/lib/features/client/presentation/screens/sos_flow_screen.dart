@@ -127,6 +127,16 @@ class _SosFlowScreenState extends State<SosFlowScreen> {
   }
 
   void _goTo(int step) => setState(() => _step = step);
+
+  void _continueDetails() {
+    final missing = serviceIntakeFields(_chosen!.skillId).where((field) => field.required && (_serviceAnswers[field.id]?.trim().isNotEmpty != true)).toList();
+    if (missing.isNotEmpty) {
+      final t = context.read<LanguageCubit>().state.t;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t('intake_required_fields'))));
+      return;
+    }
+    _goTo(2);
+  }
   bool get _canGoBack => widget.preselected != null ? _step > 1 : _step > 0;
 
   Future<void> _confirmAndDispatch() async {
@@ -270,7 +280,7 @@ class _SosFlowScreenState extends State<SosFlowScreen> {
                 diagnosing: _diagnosing,
                 diagnosisError: _diagnosisError,
                 onRunDiagnosis: _runDiagnosis,
-                onContinue: () => _goTo(2),
+                onContinue: _continueDetails,
               ),
             _ => _BudgetStep(
                 offer: _chosen!,
