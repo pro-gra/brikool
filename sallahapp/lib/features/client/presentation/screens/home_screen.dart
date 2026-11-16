@@ -546,16 +546,7 @@ class _ServiceShortcutsStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = state.t;
-    final shortcuts = [
-      (emoji: '🚿', label: t('shortcut_plumbing'), skillId: 'plumbing'),
-      (emoji: '⚡', label: t('shortcut_electricity'), skillId: 'electricity'),
-      (emoji: '❄️', label: t('shortcut_clim'), skillId: 'clim'),
-      (emoji: '🔧', label: t('shortcut_handyman'), skillId: 'handyman'),
-      (emoji: '🚗', label: t('shortcut_mechanic'), skillId: 'mecanique'),
-      (emoji: '🎨', label: t('shortcut_painting'), skillId: 'painting'),
-      (emoji: '🔒', label: t('shortcut_locksmith'), skillId: 'locksmith'),
-      (emoji: '➕', label: t('shortcut_more'), skillId: ''),
-    ];
+    final shortcuts = _launchServiceOffers(t);
 
     return SizedBox(
       height: 96,
@@ -567,7 +558,7 @@ class _ServiceShortcutsStrip extends StatelessWidget {
         itemBuilder: (context, i) {
           final s = shortcuts[i];
           return Container(
-            width: 82,
+            width: 92,
             margin: const EdgeInsets.symmetric(vertical: 2),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -585,29 +576,9 @@ class _ServiceShortcutsStrip extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  if (s.skillId.isEmpty) {
-                    _showServiceSearch(context, t);
-                    return;
-                  }
-                  final all = <ServiceOffer>[
-                    ...sosOffers(t),
-                    for (final list in categoryCatalog(t).values) ...list,
-                  ];
-                  final offer = all.firstWhere(
-                    (o) => o.skillId == s.skillId,
-                    orElse: () => ServiceOffer(
-                      skillId: s.skillId,
-                      label: s.label,
-                      sublabel: '',
-                      icon: Icons.build_rounded,
-                      suggestedBudget: 150,
-                    ),
-                  );
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => SosFlowScreen(preselected: offer)),
-                  );
-                },
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => SosFlowScreen(preselected: s)),
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -619,14 +590,14 @@ class _ServiceShortcutsStrip extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
-                      child: Text(s.emoji, style: const TextStyle(fontSize: 20)),
+                      child: Icon(s.icon, size: 21, color: const Color(0xFF0F5A47)),
                     ),
                     const SizedBox(height: 7),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
                         s.label,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -797,328 +768,60 @@ class _ResponsiveCategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = state.t;
-    final categories = ServiceCategory.values;
-    final crossCount = isDesktop ? 4 : (isTablet ? 3 : 2);
-    final totalCount = categories.length + 1;
-
+    final services = _launchServiceOffers(t);
+    final columns = isDesktop ? 3 : (isTablet ? 2 : 2);
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      itemCount: services.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossCount,
+        crossAxisCount: columns,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: isDesktop ? 1.45 : 1.30,
+        childAspectRatio: isDesktop ? 2.15 : 1.55,
       ),
-      itemCount: totalCount,
-      itemBuilder: (context, i) {
-        if (i == 0) {
-          return Material(
-            borderRadius: BorderRadius.circular(22),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const BigServicesScreen()),
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF0B4636), Color(0xFF041F18)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.apartment_rounded, color: Color(0xFF0B4636), size: 19),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF59E0B),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text(
-                            'PRO',
-                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      t('cat_big_projects'),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-
-        final cat = categories[i - 1];
-        final imageUrl = _categoryImages[cat];
-
-        return Material(
-          borderRadius: BorderRadius.circular(22),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () => _showCategorySheet(context, cat, state),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (imageUrl != null)
-                  Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(color: const Color(0xFF0F5A47)),
-                  )
-                else
-                  Container(color: const Color(0xFF0F5A47)),
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, Color(0xD9000000)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.35, 1],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(cat.icon, size: 18, color: const Color(0xFF0B4636)),
-                      ),
-                      Text(
-                        t(cat.labelKey),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          height: 1.2,
-                          shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// =================================================================
-// TOP TECHNICIANS RAIL
-// =================================================================
-class _TopTechniciansRail extends StatelessWidget {
-  const _TopTechniciansRail({
-    required this.city,
-    required this.firestoreService,
-    required this.state,
-  });
-
-  final String city;
-  final FirestoreService firestoreService;
-  final LanguageState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = state.t;
-    return StreamBuilder<List<TechnicianProfile>>(
-      stream: firestoreService.streamTopTechnicians(city, limit: 8),
-      builder: (context, techSnap) {
-        final techs = techSnap.data ?? [];
-        if (techs.isEmpty) return const SizedBox.shrink();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _SectionHeading(
-                title: city.isEmpty
-                    ? '🏆 ${t('top_technicians')}'
-                    : '🏆 ${t('top_technicians_city').replaceFirst('{city}', city)}',
-                badge: 'PRO',
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 134,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: techs.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, i) {
-                  final tech = techs[i];
-                  return Material(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () => showTechnicianPublicProfile(context, tech.techId),
-                      child: Container(
-                        width: 108,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey.withOpacity(0.12)),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              radius: 23,
-                              backgroundColor: const Color(0xFF0F5A47).withOpacity(0.08),
-                              backgroundImage: tech.profilePhotoUrl != null
-                                  ? NetworkImage(tech.profilePhotoUrl!)
-                                  : null,
-                              child: tech.profilePhotoUrl == null
-                                  ? Text(
-                                      tech.fullName.isNotEmpty ? tech.fullName[0].toUpperCase() : '?',
-                                      style: const TextStyle(color: Color(0xFF0F5A47), fontWeight: FontWeight.w800),
-                                    )
-                                  : null,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              tech.fullName.isEmpty ? t('chat_default_technician') : tech.fullName.split(' ').first,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '⭐ ${tech.rating.toStringAsFixed(1)} (${tech.jobsDone})',
-                              style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-// =================================================================
-// ACTIVE ORDER CARD
-// =================================================================
-class _ActiveOrderCard extends StatelessWidget {
-  const _ActiveOrderCard({
-    required this.uid,
-    required this.firestoreService,
-    required this.state,
-  });
-
-  final String uid;
-  final FirestoreService firestoreService;
-  final LanguageState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = state.t;
-    return StreamBuilder<Map<String, dynamic>?>(
-      stream: firestoreService.streamActiveRequestForClient(uid),
-      builder: (context, snapshot) {
-        final activeOrder = snapshot.data;
-        if (activeOrder == null) return const SizedBox.shrink();
-
-        final status = activeOrder['status'] as String? ?? '';
-        final requestId = activeOrder['requestId'] as String;
-        final label = activeOrder['serviceLabel'] as String? ?? t('orders_title');
-
+      itemBuilder: (context, index) {
+        final service = services[index];
+        final colors = const [
+          Color(0xFFEAF5F0), Color(0xFFEAF0FA), Color(0xFFEAF4FA),
+          Color(0xFFFFF3E8), Color(0xFFF2EFFA),
+        ];
         return Material(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          elevation: 2,
-          shadowColor: const Color(0xFF0F5A47).withOpacity(0.06),
+          borderRadius: BorderRadius.circular(18),
           child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => OrderDetailScreen(requestId: requestId)),
+              MaterialPageRoute(builder: (_) => SosFlowScreen(preselected: service)),
             ),
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF4ADE80).withOpacity(0.4)),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE7EEEA)),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F5A47).withOpacity(0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.sync_rounded, color: Color(0xFF0F5A47), size: 22),
+                    width: 46, height: 46,
+                    decoration: BoxDecoration(color: colors[index], borderRadius: BorderRadius.circular(14)),
+                    child: Icon(service.icon, color: const Color(0xFF0F5A47), size: 24),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 11),
                   Expanded(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
-                        ),
-                        Text(
-                          status == 'pending' ? t('active_order_negotiating') : t('active_order_assigned'),
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                        ),
+                        Text(service.label, maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF172B24))),
+                        const SizedBox(height: 3),
+                        Text(service.sublabel, maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600, height: 1.2)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF0F5A47)),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 13, color: Color(0xFF0F5A47)),
                 ],
               ),
             ),
@@ -1129,112 +832,13 @@ class _ActiveOrderCard extends StatelessWidget {
   }
 }
 
-// =================================================================
-// BOTTOM SHEETS
-// =================================================================
-void _showServiceSearch(BuildContext context, String Function(String) t) {
-  final all = <ServiceOffer>[
-    ...sosOffers(t),
-    for (final list in categoryCatalog(t).values) ...list,
-  ];
-
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-    ),
-    builder: (ctx) {
-      var query = '';
-      return Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 680),
-          child: StatefulBuilder(
-            builder: (ctx, setSheet) {
-              final results = query.isEmpty
-                  ? all
-                  : all
-                      .where((o) =>
-                          o.label.toLowerCase().contains(query.toLowerCase()) ||
-                          o.sublabel.toLowerCase().contains(query.toLowerCase()))
-                      .toList();
-              return Padding(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-                child: SizedBox(
-                  height: MediaQuery.of(ctx).size.height * 0.82,
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(top: 10, bottom: 6),
-                        width: 44,
-                        height: 4,
-                        decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(99)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                        child: TextField(
-                          autofocus: true,
-                          onChanged: (v) => setSheet(() => query = v),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: const Color(0xFFF2F7F6),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            hintText: t('search_hint'),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                            prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Color(0xFF0F5A47)),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: results.isEmpty
-                            ? Center(
-                                child: Text(t('search_no_result'), style: const TextStyle(fontSize: 13, color: Colors.grey)),
-                              )
-                            : ListView.separated(
-                                padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                                itemCount: results.length,
-                                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                                itemBuilder: (_, i) {
-                                  final offer = results[i];
-                                  return ListTile(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      side: BorderSide(color: Colors.grey.withOpacity(0.12)),
-                                    ),
-                                    leading: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF0F5A47).withOpacity(0.08),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(offer.icon, size: 20, color: const Color(0xFF0F5A47)),
-                                    ),
-                                    title: Text(offer.label, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
-                                    subtitle: Text(offer.sublabel, style: const TextStyle(fontSize: 11.5, color: Colors.grey)),
-                                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
-                                    onTap: () {
-                                      Navigator.pop(ctx);
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => SosFlowScreen(preselected: offer)),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    },
-  );
-}
+List<ServiceOffer> _launchServiceOffers(String Function(String) t) => [
+  ServiceOffer(skillId: 'plumbing', label: t('launch_plumbing'), sublabel: t('launch_plumbing_sub'), icon: Icons.plumbing_rounded, suggestedBudget: 200),
+  ServiceOffer(skillId: 'electricity', label: t('launch_electricity'), sublabel: t('launch_electricity_sub'), icon: Icons.electrical_services_rounded, suggestedBudget: 200),
+  ServiceOffer(skillId: 'clim', label: t('launch_hvac'), sublabel: t('launch_hvac_sub'), icon: Icons.ac_unit_rounded, suggestedBudget: 300),
+  ServiceOffer(skillId: 'printing', label: t('launch_printing'), sublabel: t('launch_printing_sub'), icon: Icons.print_rounded, suggestedBudget: 100),
+  ServiceOffer(skillId: 'appliance', label: t('launch_appliance'), sublabel: t('launch_appliance_sub'), icon: Icons.kitchen_rounded, suggestedBudget: 250),
+];
 
 void _showCategorySheet(BuildContext context, ServiceCategory category, LanguageState state) {
   final t = state.t;
