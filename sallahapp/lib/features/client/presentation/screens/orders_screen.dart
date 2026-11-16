@@ -399,7 +399,7 @@ class _ErrorState extends StatelessWidget {
 
 IconData _serviceIconFor(String serviceType, String Function(String) t) {
   final id = serviceType.replaceFirst('sos_', '');
-  for (final offers in [sosOffers(t), ...categoryCatalog(t).values]) {
+  for (final offers in [launchServiceOffers(t)]) {
     for (final o in offers) {
       if (o.skillId == id) return o.icon;
     }
