@@ -861,7 +861,7 @@ class _ActiveJobPanelState extends State<_ActiveJobPanel> {
       }
       final requestId = widget.job['requestId'] as String;
       final initial = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        desiredAccuracy: LocationAccuracy.high,
       );
       await widget.firestoreService.updateRequestTechnicianLocation(
         requestId: requestId,
