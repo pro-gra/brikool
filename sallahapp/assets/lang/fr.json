@@ -784,8 +784,10 @@
   "launch_printing_sub": "Documents, copies, photos et impressions",
   "launch_appliance_sub": "Lave-linge, réfrigérateur, four et appareils",
   "tracking_technician_location_received": "Position du technicien reçue",
-  "tracking_map_needs_setup": "La carte sera activée après la configuration de Google Maps",
+  "tracking_map_needs_setup": "Carte OpenStreetMap",
   "home_hero_eyebrow": "BRIKOOL • À VOTRE SERVICE",
   "home_hero_title": "Votre maison mérite le meilleur",
-  "home_hero_subtitle": "Trouvez le bon professionnel pour vos travaux du quotidien."
+  "home_hero_subtitle": "Trouvez le bon professionnel pour vos travaux du quotidien.",
+  "tracking_view_full_map": "Voir la carte",
+  "tracking_waiting_for_technician": "En attente de la position du technicien"
 }
