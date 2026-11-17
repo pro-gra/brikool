@@ -1,7 +1,6 @@
 ﻿import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -304,34 +303,7 @@ class _HeaderSection extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Material(
-                      color: const Color(0xFFEF4444),
-                      borderRadius: BorderRadius.circular(20),
-                      elevation: 3,
-                      shadowColor: const Color(0xFFEF4444).withOpacity(0.4),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(20),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SosFlowScreen()),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.bolt_rounded, size: 17, color: Colors.white),
-                              const SizedBox(width: 4),
-                              Text(
-                                t('sos_title'),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.4,
-                                ),
-                              ),
-                            ],
+                  ],
                           ),
                         ),
                       ),
@@ -865,19 +837,35 @@ class _ActiveOrderCard extends StatelessWidget {
               ),
             ),
             if (hasTechLocation && tech != null)
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-                child: SizedBox(
-                  height: 150,
-                  child: gmaps.GoogleMap(
-                    initialCameraPosition: gmaps.CameraPosition(target: gmaps.LatLng(tech.latitude, tech.longitude), zoom: 14),
-                    markers: {
-                      gmaps.Marker(markerId: const gmaps.MarkerId('technician'), position: gmaps.LatLng(tech.latitude, tech.longitude), infoWindow: gmaps.InfoWindow(title: t('tracking_technician'))),
-                      if (client != null) gmaps.Marker(markerId: const gmaps.MarkerId('client'), position: gmaps.LatLng(client.latitude, client.longitude), infoWindow: gmaps.InfoWindow(title: t('tracking_your_location'))),
-                    },
-                    zoomControlsEnabled: false, myLocationButtonEnabled: false,
-                    mapToolbarEnabled: false, compassEnabled: false,
-                  ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF0F7F3),
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 38, height: 38,
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.location_searching_rounded, color: Color(0xFF0F5A47)),
+                    ),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(t('tracking_technician_location_received'),
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF173D30))),
+                          const SizedBox(height: 2),
+                          Text(t('tracking_map_needs_setup'),
+                            style: const TextStyle(fontSize: 11, color: Color(0xFF64746C))),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.my_location_rounded, color: Color(0xFF0F5A47), size: 18),
+                  ],
                 ),
               ),
           ]),
