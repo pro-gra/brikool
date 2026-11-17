@@ -211,8 +211,8 @@
   "company_stat_city": "المدينة",
   "company_price_range": "تقدير أولي",
   "company_price_range_sub": "(الثمن النهائي حسب المشروع)",
-  "sos_flow_step0": "طوارئ",
-  "sos_flow_step1": "عطل كهربائي طارئ",
+  "sos_flow_step0": "اختار الخدمة",
+  "sos_flow_step1": "تفاصيل الخدمة",
   "sos_describe": "وصف المشكل",
   "sos_describe_hint": "شرح المشكل ديالك بالتفصيل...",
   "sos_photos": "تصاور المشكل",
@@ -777,5 +777,12 @@
   "intake_materials_discuss": "نتافقو عليها",
   "intake_matte": "مات",
   "intake_satin": "ساتيني",
-  "intake_gloss": "لامع"
+  "intake_gloss": "لامع",
+  "launch_plumbing_sub": "تسربات الما، الروبيني، القوادس والمرحاض",
+  "launch_electricity_sub": "الأعطال، البريزات، الضو والأسلاك",
+  "launch_hvac_sub": "تركيب وصيانة وإصلاح المكيفات والتدفئة",
+  "launch_printing_sub": "الوثائق، النسخ، الصور والطباعة",
+  "launch_appliance_sub": "الماكينة، الثلاجة، الفران والأجهزة",
+  "tracking_technician_location_received": "توصلنا بموقع التقني",
+  "tracking_map_needs_setup": "الخريطة غادي تخدم من بعد إعداد Google Maps"
 }
