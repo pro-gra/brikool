@@ -211,8 +211,8 @@
   "company_stat_city": "Ville",
   "company_price_range": "Devis indicatif",
   "company_price_range_sub": "(le prix final dépend de votre projet)",
-  "sos_flow_step0": "Urgence",
-  "sos_flow_step1": "Décrivez le problème",
+  "sos_flow_step0": "Choisir un service",
+  "sos_flow_step1": "Détails du service",
   "sos_describe": "Décrivez votre problème",
   "sos_describe_hint": "Décrivez votre problème en détail...",
   "sos_photos": "Photos du problème",
@@ -777,5 +777,12 @@
   "intake_materials_discuss": "À discuter",
   "intake_matte": "Mat",
   "intake_satin": "Satiné",
-  "intake_gloss": "Brillant"
+  "intake_gloss": "Brillant",
+  "launch_plumbing_sub": "Fuites, robinets, canalisations et sanitaires",
+  "launch_electricity_sub": "Pannes, prises, éclairage et câblage",
+  "launch_hvac_sub": "Installation, entretien et réparation",
+  "launch_printing_sub": "Documents, copies, photos et impressions",
+  "launch_appliance_sub": "Lave-linge, réfrigérateur, four et appareils",
+  "tracking_technician_location_received": "Position du technicien reçue",
+  "tracking_map_needs_setup": "La carte sera activée après la configuration de Google Maps"
 }
