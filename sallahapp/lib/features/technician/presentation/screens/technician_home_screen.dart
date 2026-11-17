@@ -274,6 +274,7 @@ class _JobFeed extends StatefulWidget {
   const _JobFeed({required this.profile, required this.firestoreService});
   final TechnicianProfile profile;
   final FirestoreService firestoreService;
+
   @override
   State<_JobFeed> createState() => _JobFeedState();
 }
@@ -284,31 +285,153 @@ class _JobFeedState extends State<_JobFeed> {
   @override
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
-    final mySkills = TechnicianSkill.all.where((s) => widget.profile.skills.contains(s.id)).toList();
+    final mySkills = TechnicianSkill.all
+        .where((skill) => widget.profile.skills.contains(skill.id))
+        .toList();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (mySkills.length > 1)
-          SizedBox(
-            height: 46,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              children: [
-                _SkillChip(
-                  label: t('orders_filter_all'),
-                  icon: Icons.all_inclusive_rounded,
-                  selected: _skillFilter == null,
-                  onTap: () => setState(() => _skillFilter = null),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 20, 18, 14),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0F9D58), Color(0xFF086B43)],
+              ),
+              borderRadius: BorderRadius.circular(23),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(.18),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
                 ),
-                ...mySkills.map((s) => _SkillChip(
-                      label: s.label,
-                      icon: s.icon,
-                      selected: _skillFilter == s.id,
-                      onTap: () => setState(() => _skillFilter = _skillFilter == s.id ? null : s.id),
-                    )),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'VOTRE ESPACE PROFESSIONNEL',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Missions disponibles',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 21,
+                          height: 1.15,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Trouvez une intervention, consultez les détails et envoyez votre offre.',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(.82),
+                          fontSize: 11.5,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(.14),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: const Icon(
+                    Icons.handyman_rounded,
+                    color: Colors.white,
+                    size: 29,
+                  ),
+                ),
               ],
             ),
           ),
+        ),
+        if (mySkills.isNotEmpty)
+          SizedBox(
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+              children: [
+                _SkillChip(
+                  label: t('orders_filter_all'),
+                  icon: Icons.grid_view_rounded,
+                  selected: _skillFilter == null,
+                  onTap: () => setState(() => _skillFilter = null),
+                ),
+                ...mySkills.map((skill) => _SkillChip(
+                  label: skill.label,
+                  icon: skill.icon,
+                  selected: _skillFilter == skill.id,
+                  onTap: () => setState(
+                    () => _skillFilter =
+                        _skillFilter == skill.id ? null : skill.id,
+                  ),
+                )),
+              ],
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 13, 20, 7),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Demandes récentes',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.bolt_rounded, color: AppColors.primary, size: 14),
+                    SizedBox(width: 4),
+                    Text(
+                      'EN DIRECT',
+                      style: TextStyle(
+                        color: AppColors.primaryDark,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: .7,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: widget.firestoreService.streamOpenRequestsForSkills(
@@ -317,35 +440,74 @@ class _JobFeedState extends State<_JobFeed> {
             ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(child: Padding(
+                return Center(
+                  child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child: Text('${t('error')}: ${snapshot.error}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary))));
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.cloud_off_rounded,
+                            color: AppColors.danger, size: 34),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Impossible de charger les demandes.',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          snapshot.error.toString(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               }
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-              var jobs = snapshot.data!;
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              var jobs = snapshot.data ?? <Map<String, dynamic>>[];
               if (_skillFilter != null) {
-                jobs = jobs.where((j) => (j['serviceType'] as String? ?? '') == 'sos_$_skillFilter').toList();
+                jobs = jobs.where((job) {
+                  final type = (job['serviceType'] as String? ?? '')
+                      .toLowerCase()
+                      .replaceFirst('sos_', '');
+                  return type == _skillFilter;
+                }).toList();
               }
-              final myId = widget.profile.techId;
-              final preferred = jobs.where((j) => j['preferredTechId'] == myId).toList();
-              final others = jobs.where((j) => j['preferredTechId'] != myId).toList();
-              jobs = [...preferred, ...others];
+
               if (jobs.isEmpty) return const _EmptyFeed();
+
               return ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: jobs.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, i) => TweenAnimationBuilder<double>(
+                itemBuilder: (context, index) => TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 320 + i * 70),
+                  duration: Duration(milliseconds: 280 + index * 55),
                   curve: Curves.easeOutCubic,
-                  builder: (context, v, child) => Opacity(
-                    opacity: v,
-                    child: Transform.translate(offset: Offset(0, 14 * (1 - v)), child: child),
+                  builder: (context, value, child) => Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 12 * (1 - value)),
+                      child: child,
+                    ),
                   ),
-                  child: _JobCard(job: jobs[i], profile: widget.profile, firestoreService: widget.firestoreService),
+                  child: _JobCard(
+                    job: jobs[index],
+                    profile: widget.profile,
+                    firestoreService: widget.firestoreService,
+                  ),
                 ),
               );
             },
