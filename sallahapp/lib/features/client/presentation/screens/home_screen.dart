@@ -1,6 +1,8 @@
 ﻿import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_map/flutter_map.dart' as fmap;
+import 'package:latlong2/latlong.dart' as ll;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -903,6 +905,23 @@ class _HomeHeroCard extends StatelessWidget {
 
 List<ServiceOffer> _launchServiceOffers(String Function(String) t) => launchServiceOffers(t);
 
+class _HomeMapPin extends StatelessWidget {
+  const _HomeMapPin({required this.icon, required this.color});
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      border: Border.all(color: Colors.white, width: 3),
+      boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 7, offset: Offset(0, 2))],
+    ),
+    child: Icon(icon, color: Colors.white, size: 17),
+  );
+}
+
 class _ActiveOrderCard extends StatelessWidget {
   const _ActiveOrderCard({required this.uid, required this.firestoreService, required this.state});
   final String uid;
@@ -922,8 +941,7 @@ class _ActiveOrderCard extends StatelessWidget {
         final label = order['serviceLabel'] as String? ?? t('orders_title');
         final techPoint = order['technicianLocation'];
         final clientPoint = order['clientLocation'];
-        final hasTechLocation = status == 'en_route' && techPoint is GeoPoint;
-        final tech = hasTechLocation ? techPoint as GeoPoint : null;
+        final tech = techPoint is GeoPoint ? techPoint : null;
         final client = clientPoint is GeoPoint ? clientPoint : null;
         return Container(
           decoration: BoxDecoration(
@@ -951,35 +969,83 @@ class _ActiveOrderCard extends StatelessWidget {
                 ]),
               ),
             ),
-            if (hasTechLocation && tech != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF0F7F3),
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-                ),
-                child: Row(
+            if (tech != null || client != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 38, height: 38,
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.location_searching_rounded, color: Color(0xFF0F5A47)),
+                    Row(
+                      children: [
+                        const Icon(Icons.near_me_rounded, color: Color(0xFF0F7A52), size: 17),
+                        const SizedBox(width: 7),
+                        Expanded(
+                          child: Text(
+                            tech != null ? t('tracking_technician_location_received') : t('tracking_waiting_for_technician'),
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF173D30)),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => OrderDetailScreen(requestId: requestId)),
+                          ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF0F5A47),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            minimumSize: const Size(0, 32),
+                          ),
+                          child: Text(t('tracking_view_full_map'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 11),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(t('tracking_technician_location_received'),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF173D30))),
-                          const SizedBox(height: 2),
-                          Text(t('tracking_map_needs_setup'),
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF64746C))),
-                        ],
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: SizedBox(
+                        height: 142,
+                        child: fmap.FlutterMap(
+                          options: fmap.MapOptions(
+                            initialCenter: ll.LatLng(
+                              (tech ?? client!).latitude,
+                              (tech ?? client!).longitude,
+                            ),
+                            initialZoom: 14,
+                            interactionOptions: const fmap.InteractionOptions(
+                              flags: fmap.InteractiveFlag.pinchZoom | fmap.InteractiveFlag.drag,
+                            ),
+                          ),
+                          children: [
+                            fmap.TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.brikool.app',
+                            ),
+                            fmap.MarkerLayer(
+                              markers: [
+                                if (tech != null)
+                                  fmap.Marker(
+                                    point: ll.LatLng(tech.latitude, tech.longitude),
+                                    width: 38,
+                                    height: 38,
+                                    child: const _HomeMapPin(icon: Icons.build_rounded, color: Color(0xFF0F7A52)),
+                                  ),
+                                if (client != null)
+                                  fmap.Marker(
+                                    point: ll.LatLng(client.latitude, client.longitude),
+                                    width: 38,
+                                    height: 38,
+                                    child: const _HomeMapPin(icon: Icons.home_rounded, color: Color(0xFF2455A4)),
+                                  ),
+                              ],
+                            ),
+                            fmap.RichAttributionWidget(
+                              attributions: const [
+                                fmap.TextSourceAttribution('© OpenStreetMap contributors'),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const Icon(Icons.my_location_rounded, color: Color(0xFF0F5A47), size: 18),
                   ],
                 ),
               ),
