@@ -784,8 +784,10 @@
   "launch_printing_sub": "الوثائق، النسخ، الصور والطباعة",
   "launch_appliance_sub": "الماكينة، الثلاجة، الفران والأجهزة",
   "tracking_technician_location_received": "توصلنا بموقع التقني",
-  "tracking_map_needs_setup": "الخريطة غادي تخدم من بعد إعداد Google Maps",
+  "tracking_map_needs_setup": "خريطة OpenStreetMap",
   "home_hero_eyebrow": "بريكول • ديما معاك",
   "home_hero_title": "دارك تستاهل أحسن خدمة",
-  "home_hero_subtitle": "لقى التقني المناسب للإصلاحات والخدمات ديال دارك."
+  "home_hero_subtitle": "لقى التقني المناسب للإصلاحات والخدمات ديال دارك.",
+  "tracking_view_full_map": "عرض الخريطة",
+  "tracking_waiting_for_technician": "في انتظار موقع التقني"
 }
