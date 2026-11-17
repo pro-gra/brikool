@@ -311,7 +311,10 @@ class _JobFeedState extends State<_JobFeed> {
           ),
         Expanded(
           child: StreamBuilder<List<Map<String, dynamic>>>(
-            stream: widget.firestoreService.streamOpenRequestsForSkills(widget.profile.skills),
+            stream: widget.firestoreService.streamOpenRequestsForSkills(
+              widget.profile.skills,
+              technicianId: widget.profile.techId,
+            ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(child: Padding(
