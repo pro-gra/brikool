@@ -304,11 +304,6 @@ class _HeaderSection extends StatelessWidget {
                       ),
                     ),
                   ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
                 const SizedBox(height: 22),
                 if (isDesktop)
