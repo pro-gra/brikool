@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
+import 'package:flutter_map/flutter_map.dart' as fmap;
+import 'package:latlong2/latlong.dart' as ll;
 import 'package:url_launcher/url_launcher.dart' as ul;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/firestore_service.dart';
@@ -999,6 +1000,28 @@ class OrderDetailScreen extends StatelessWidget {
   }
 }
 
+class _TrackingMapPin extends StatelessWidget {
+  const _TrackingMapPin({required this.icon, required this.color});
+
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 3),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: 19),
+    );
+  }
+}
+
 class _LiveTechnicianTrackingCard extends StatelessWidget {
   const _LiveTechnicianTrackingCard({
     required this.technicianLocation,
@@ -1050,29 +1073,91 @@ class _LiveTechnicianTrackingCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: SizedBox(
-              height: 210,
-              child: gmaps.GoogleMap(
-                initialCameraPosition: gmaps.CameraPosition(
-                  target: gmaps.LatLng(center.latitude, center.longitude),
-                  zoom: 14,
-                ),
-                markers: {
-                  if (tech != null) gmaps.Marker(
-                    markerId: const gmaps.MarkerId('technician'),
-                    position: gmaps.LatLng(tech.latitude, tech.longitude),
-                    infoWindow: const gmaps.InfoWindow(title: 'Technicien'),
-                    icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueGreen),
+              height: 220,
+              child: Stack(
+                children: [
+                  fmap.FlutterMap(
+                    options: fmap.MapOptions(
+                      initialCenter: ll.LatLng(center.latitude, center.longitude),
+                      initialZoom: 14,
+                      interactionOptions: const fmap.InteractionOptions(
+                        flags: fmap.InteractiveFlag.all,
+                      ),
+                    ),
+                    children: [
+                      fmap.TileLayer(
+                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.brikool.app',
+                      ),
+                      fmap.MarkerLayer(
+                        markers: [
+                          if (tech != null)
+                            fmap.Marker(
+                              point: ll.LatLng(tech.latitude, tech.longitude),
+                              width: 44,
+                              height: 44,
+                              child: const _TrackingMapPin(
+                                icon: Icons.build_rounded,
+                                color: Color(0xFF0F7A52),
+                              ),
+                            ),
+                          if (client != null)
+                            fmap.Marker(
+                              point: ll.LatLng(client.latitude, client.longitude),
+                              width: 44,
+                              height: 44,
+                              child: const _TrackingMapPin(
+                                icon: Icons.home_rounded,
+                                color: Color(0xFF2455A4),
+                              ),
+                            ),
+                        ],
+                      ),
+                      fmap.RichAttributionWidget(
+                        attributions: [
+                          fmap.TextSourceAttribution(
+                            '© OpenStreetMap contributors',
+                            onTap: () => ul.launchUrl(
+                              Uri.parse('https://www.openstreetmap.org/copyright'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  if (client != null) gmaps.Marker(
-                    markerId: const gmaps.MarkerId('destination'),
-                    position: gmaps.LatLng(client.latitude, client.longitude),
-                    infoWindow: const gmaps.InfoWindow(title: 'Votre adresse'),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(.95),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF19A66A),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            t('tracking_live'),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                },
-                zoomControlsEnabled: false,
-                myLocationButtonEnabled: false,
-                mapToolbarEnabled: false,
-                compassEnabled: false,
+                ],
               ),
             ),
           ),
