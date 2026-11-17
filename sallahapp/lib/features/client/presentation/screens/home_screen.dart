@@ -95,7 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 18),
+                                const _HomeHeroCard(),
+                                const SizedBox(height: 22),
                                 if (user != null)
                                   _ActiveOrderCard(
                                     uid: user.uid,
@@ -714,69 +716,187 @@ class _ResponsiveCategoryGrid extends StatelessWidget {
   final bool isDesktop;
   final bool isTablet;
 
+  static const _photos = [
+    'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=900&q=85',
+    'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=900&q=85',
+    'https://images.unsplash.com/photo-1631545806609-4b7f4f5f4c9d?w=900&q=85',
+    'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900&q=85',
+    'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=900&q=85',
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final t = state.t;
-    final services = _launchServiceOffers(t);
-    final columns = isDesktop ? 3 : (isTablet ? 2 : 2);
+    final services = _launchServiceOffers(state.t);
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: services.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
+        crossAxisCount: isDesktop ? 3 : 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: isDesktop ? 2.15 : 1.55,
+        childAspectRatio: isDesktop ? 1.75 : 1.22,
       ),
       itemBuilder: (context, index) {
         final service = services[index];
-        final colors = const [
-          Color(0xFFEAF5F0), Color(0xFFEAF0FA), Color(0xFFEAF4FA),
-          Color(0xFFFFF3E8), Color(0xFFF2EFFA),
-        ];
         return Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          color: const Color(0xFF123D31),
+          borderRadius: BorderRadius.circular(22),
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
-            borderRadius: BorderRadius.circular(18),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => SosFlowScreen(preselected: service)),
             ),
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFE7EEEA)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46, height: 46,
-                    decoration: BoxDecoration(color: colors[index], borderRadius: BorderRadius.circular(14)),
-                    child: Icon(service.icon, color: const Color(0xFF0F5A47), size: 24),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
+                  _photos[index],
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF17634D), Color(0xFF082D23)],
+                      ),
+                    ),
+                    child: Icon(service.icon, size: 58, color: Colors.white24),
                   ),
-                  const SizedBox(width: 11),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(service.label, maxLines: 2, overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF172B24))),
-                        const SizedBox(height: 3),
-                        Text(service.sublabel, maxLines: 2, overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600, height: 1.2)),
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.04),
+                        Colors.black.withOpacity(0.18),
+                        Colors.black.withOpacity(0.78),
                       ],
+                      stops: const [0.0, 0.38, 1.0],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios_rounded, size: 13, color: Color(0xFF0F5A47)),
-                ],
-              ),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.92),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(service.icon, color: const Color(0xFF0F5A47), size: 20),
+                  ),
+                ),
+                Positioned(
+                  left: 14,
+                  right: 12,
+                  bottom: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(service.label, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white,
+                          shadows: [Shadow(color: Colors.black38, blurRadius: 8)])),
+                      const SizedBox(height: 4),
+                      Text(service.sublabel, maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 10.5, height: 1.25, color: Colors.white.withOpacity(0.9))),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 14,
+                  right: 12,
+                  child: Icon(Icons.arrow_forward_rounded, color: Colors.white.withOpacity(0.9), size: 17),
+                ),
+              ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _HomeHeroCard extends StatelessWidget {
+  const _HomeHeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.watch<LanguageCubit>().state.t;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(26),
+      child: SizedBox(
+        height: 184,
+        width: double.infinity,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.network(
+              'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1400&q=90',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF17634D), Color(0xFF062D23)],
+                  ),
+                ),
+              ),
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    const Color(0xFF062D23).withOpacity(0.96),
+                    const Color(0xFF062D23).withOpacity(0.72),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.58, 1.0],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 290),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFB9F3D1).withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: Text(t('home_hero_eyebrow'),
+                          style: const TextStyle(color: Color(0xFFB9F3D1), fontSize: 10, fontWeight: FontWeight.w800)),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(t('home_hero_title'), maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white, fontSize: 20, height: 1.12, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 6),
+                      Text(t('home_hero_subtitle'), maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.white.withOpacity(0.86), fontSize: 11.5, height: 1.3)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
