@@ -488,13 +488,37 @@ Future<TechnicianProfile?> getTechnicianProfile(String techId) async {
   // Requests — technician side
   // ---------------------------------------------------------------
 
-  Stream<List<Map<String, dynamic>>> streamOpenRequestsForSkills(List<String> skills) {
-    return _requests.where('status', isEqualTo: 'pending').snapshots().map((snap) {
+  Stream<List<Map<String, dynamic>>> streamOpenRequestsForSkills(
+    List<String> skills, {
+    String? technicianId,
+  }) {
+    // Requests created by the current app use "pending". "open" is included
+    // for older documents created by previous app versions.
+    final normalizedSkills = skills
+        .map((skill) => skill.trim().toLowerCase().replaceFirst('sos_', ''))
+        .where((skill) => skill.isNotEmpty)
+        .toSet();
+
+    return _requests
+        .where('status', whereIn: ['pending', 'open'])
+        .snapshots()
+        .map((snap) {
       final list = snap.docs
           .map((d) => {...d.data(), 'requestId': d.id})
-          .where((r) => skills.any((s) => (r['serviceType'] as String? ?? '') == 'sos_$s'))
-          .toList();
+          .where((request) {
+        final serviceType = (request['serviceType'] as String? ?? '')
+            .trim()
+            .toLowerCase();
+        final requestedSkill = serviceType.replaceFirst('sos_', '');
+        final isAssignedDirectly = technicianId != null &&
+            request['preferredTechId'] == technicianId;
+        return isAssignedDirectly || normalizedSkills.contains(requestedSkill);
+      }).toList();
+
       list.sort((a, b) {
+        final preferredA = technicianId != null && a['preferredTechId'] == technicianId;
+        final preferredB = technicianId != null && b['preferredTechId'] == technicianId;
+        if (preferredA != preferredB) return preferredA ? -1 : 1;
         final ta = a['createdAt'];
         final tb = b['createdAt'];
         if (ta is! Timestamp) return 1;
