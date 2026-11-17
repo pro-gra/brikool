@@ -114,115 +114,66 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topLeft, end: Alignment.bottomRight,
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(26),
-          bottomRight: Radius.circular(26),
+          bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30),
         ),
       ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: profile.isOnline ? const Color(0xFF7CF2C0) : Colors.white38,
-                      width: 2),
-                ),
-                child: CircleAvatar(
-                  radius: 21,
-                  backgroundColor: Colors.white,
-                  backgroundImage: profile.profilePhotoUrl != null
-                      ? NetworkImage(profile.profilePhotoUrl!)
-                      : null,
-                  child: profile.profilePhotoUrl == null
-                      ? Text(profile.fullName.isNotEmpty ? profile.fullName[0] : '?',
-                          style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800))
-                      : null,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(profile.fullName.isEmpty ? t('chat_default_technician') : profile.fullName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5, color: Colors.white)),
-                    Text(
-                        profile.isOnline ? t('tech_online_status') : t('tech_offline_status'),
-                        style: const TextStyle(fontSize: 11.5, color: Colors.white70)),
-                  ],
-                ),
-              ),
-              busy
-                  ? const SizedBox(width: 22, height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Switch(
-                      value: profile.isOnline,
-                      activeColor: Colors.white,
-                      activeTrackColor: const Color(0xFF7CF2C0),
-                      onChanged: onToggle,
-                    ),
-            ],
+      child: Column(children: [
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(shape: BoxShape.circle,
+              border: Border.all(color: profile.isOnline ? const Color(0xFF8AF2C5) : Colors.white54, width: 2)),
+            child: CircleAvatar(
+              radius: 25, backgroundColor: Colors.white,
+              backgroundImage: profile.profilePhotoUrl != null ? NetworkImage(profile.profilePhotoUrl!) : null,
+              child: profile.profilePhotoUrl == null
+                ? Text(profile.fullName.isNotEmpty ? profile.fullName[0].toUpperCase() : '?',
+                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 20))
+                : null,
+            ),
           ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _HeaderStat(value: '${profile.jobsDone}', label: t('tech_stat_jobs')),
-              _HeaderStat(value: profile.rating.toStringAsFixed(1), label: t('tech_stat_rating')),
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.14), borderRadius: BorderRadius.circular(14)),
-                  child: Column(children: [
-                    Text(profile.city.isEmpty ? '—' : profile.city, maxLines: 1, overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
-                    Text('Ville', style: const TextStyle(fontSize: 9.5, color: Colors.white70)),
-                  ]),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderStat extends StatelessWidget {
-  const _HeaderStat({required this.value, required this.label});
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(vertical: 9),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.14),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          children: [
-            Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
-            Text(label, style: const TextStyle(fontSize: 9.5, color: Colors.white70)),
-          ],
-        ),
-      ),
+          const SizedBox(width: 13),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(profile.fullName.isEmpty ? t('chat_default_technician') : profile.fullName,
+              maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: Colors.white)),
+            const SizedBox(height: 4),
+            Row(children: [
+              Container(width: 7, height: 7, decoration: BoxDecoration(
+                color: profile.isOnline ? const Color(0xFF8AF2C5) : Colors.white60, shape: BoxShape.circle)),
+              const SizedBox(width: 6),
+              Text(profile.isOnline ? t('tech_online_status') : t('tech_offline_status'),
+                style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w600)),
+            ]),
+          ])),
+          const SizedBox(width: 8),
+          if (busy)
+            const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+          else
+            Column(mainAxisSize: MainAxisSize.min, children: [
+              Switch(value: profile.isOnline, activeColor: AppColors.primary,
+                activeTrackColor: const Color(0xFF8AF2C5), inactiveThumbColor: Colors.white,
+                inactiveTrackColor: Colors.white30, onChanged: onToggle),
+              Text(profile.isOnline ? 'ON' : 'OFF',
+                style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 1)),
+            ]),
+        ]),
+        const SizedBox(height: 22),
+        Row(children: [
+          Expanded(child: _HeaderStat(value: profile.jobsDone.toString(), label: t('tech_stat_jobs'))),
+          const SizedBox(width: 9),
+          Expanded(child: _HeaderStat(value: profile.rating.toStringAsFixed(1), label: t('tech_stat_rating'))),
+          const SizedBox(width: 9),
+          Expanded(child: _HeaderStat(value: profile.city.isEmpty ? '—' : profile.city, label: 'Ville')),
+        ]),
+      ]),
     );
   }
 }
@@ -401,21 +352,61 @@ class _EmptyFeed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.inbox_rounded, size: 40, color: AppColors.textMuted),
-            const SizedBox(height: 12),
-            Text(t('tech_feed_empty_title'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            Text(t('tech_feed_empty_sub'), textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary)),
-          ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 30),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(21),
+          decoration: BoxDecoration(
+            color: AppColors.surface, borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: AppColors.border),
+            boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(.06), blurRadius: 24, offset: const Offset(0, 10))],
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Container(width: 50, height: 50,
+                decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(16)),
+                child: const Icon(Icons.work_outline_rounded, color: AppColors.primary, size: 26)),
+              const Spacer(),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(30)),
+                child: Row(children: [
+                  Container(width: 7, height: 7, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
+                  const SizedBox(width: 6),
+                  Text(t('tech_online_status'), style: const TextStyle(fontSize: 10.5, color: AppColors.primaryDark, fontWeight: FontWeight.w800)),
+                ]),
+              ),
+            ]),
+            const SizedBox(height: 20),
+            Text(t('tech_feed_empty_title'),
+              style: const TextStyle(fontSize: 20, height: 1.25, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+            const SizedBox(height: 8),
+            Text(t('tech_feed_empty_sub'),
+              style: const TextStyle(fontSize: 13, height: 1.6, color: AppColors.textSecondary)),
+            const SizedBox(height: 18),
+            const Divider(height: 1, color: AppColors.border),
+            const SizedBox(height: 15),
+            const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.tips_and_updates_outlined, color: AppColors.primary, size: 19),
+              SizedBox(width: 9),
+              Expanded(child: Text('Gardez vos compétences à jour et votre disponibilité activée. Les nouvelles demandes compatibles apparaîtront ici.',
+                style: TextStyle(fontSize: 12, height: 1.55, color: AppColors.textSecondary))),
+            ]),
+          ]),
         ),
-      ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(17),
+          decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border)),
+          child: const Row(children: [
+            Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 23),
+            SizedBox(width: 12),
+            Expanded(child: Text('Une demande claire, une réponse rapide et un travail soigné renforcent votre réputation sur Brikool.',
+              style: TextStyle(fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: AppColors.textSecondary))),
+          ]),
+        ),
+      ],
     );
   }
 }
