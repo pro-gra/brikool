@@ -103,7 +103,7 @@ class _TechnicianHomeScreenState extends State<TechnicianHomeScreen> {
   }
 }
 
-// ── Header ────────────────────────────────────────────────────────
+// ── Simple technician home template ───────────────────────────────
 class _Header extends StatelessWidget {
   const _Header({required this.profile, required this.busy, required this.onToggle});
   final TechnicianProfile profile;
@@ -114,105 +114,105 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primaryDark],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30),
-        ),
-      ),
-      child: Column(children: [
-        Row(children: [
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(shape: BoxShape.circle,
-              border: Border.all(color: profile.isOnline ? const Color(0xFF8AF2C5) : Colors.white54, width: 2)),
-            child: CircleAvatar(
-              radius: 25, backgroundColor: Colors.white,
-              backgroundImage: profile.profilePhotoUrl != null ? NetworkImage(profile.profilePhotoUrl!) : null,
-              child: profile.profilePhotoUrl == null
-                ? Text(profile.fullName.isNotEmpty ? profile.fullName[0].toUpperCase() : '?',
-                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 20))
-                : null,
-            ),
-          ),
-          const SizedBox(width: 13),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(profile.fullName.isEmpty ? t('chat_default_technician') : profile.fullName,
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: Colors.white)),
-            const SizedBox(height: 4),
-            Row(children: [
-              Container(width: 7, height: 7, decoration: BoxDecoration(
-                color: profile.isOnline ? const Color(0xFF8AF2C5) : Colors.white60, shape: BoxShape.circle)),
-              const SizedBox(width: 6),
-              Text(profile.isOnline ? t('tech_online_status') : t('tech_offline_status'),
-                style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w600)),
-            ]),
-          ])),
-          const SizedBox(width: 8),
-          if (busy)
-            const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-          else
-            Column(mainAxisSize: MainAxisSize.min, children: [
-              Switch(value: profile.isOnline, activeColor: AppColors.primary,
-                activeTrackColor: const Color(0xFF8AF2C5), inactiveThumbColor: Colors.white,
-                inactiveTrackColor: Colors.white30, onChanged: onToggle),
-              Text(profile.isOnline ? 'ON' : 'OFF',
-                style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 1)),
-            ]),
-        ]),
-        const SizedBox(height: 22),
-        Row(children: [
-          Expanded(child: _HeaderStat(value: profile.jobsDone.toString(), label: t('tech_stat_jobs'))),
-          const SizedBox(width: 9),
-          Expanded(child: _HeaderStat(value: profile.rating.toStringAsFixed(1), label: t('tech_stat_rating'))),
-          const SizedBox(width: 9),
-          Expanded(child: _HeaderStat(value: profile.city.isEmpty ? '—' : profile.city, label: 'Ville')),
-        ]),
-      ]),
-    );
-  }
-}
-
-class _HeaderStat extends StatelessWidget {
-  const _HeaderStat({required this.value, required this.label});
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.14),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(.10)),
-      ),
+      color: AppColors.surface,
+      padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
       child: Column(
         children: [
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-            ),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 23,
+                backgroundColor: AppColors.primaryLight,
+                backgroundImage: profile.profilePhotoUrl != null
+                    ? NetworkImage(profile.profilePhotoUrl!)
+                    : null,
+                child: profile.profilePhotoUrl == null
+                    ? Text(
+                        profile.fullName.isNotEmpty ? profile.fullName[0].toUpperCase() : '?',
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile.fullName.isEmpty ? t('chat_default_technician') : profile.fullName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: BoxDecoration(
+                            color: profile.isOnline ? AppColors.success : AppColors.textMuted,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          profile.isOnline ? t('tech_online_status') : t('tech_offline_status'),
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
+                        if (profile.city.isNotEmpty) ...[
+                          const SizedBox(width: 7),
+                          const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              profile.city,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (busy)
+                const SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Center(child: SizedBox(width: 19, height: 19, child: CircularProgressIndicator(strokeWidth: 2))),
+                )
+              else
+                Switch.adaptive(
+                  value: profile.isOnline,
+                  activeColor: AppColors.primary,
+                  onChanged: onToggle,
+                ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              color: Colors.white70,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+            decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
+            child: Row(
+              children: [
+                const Icon(Icons.work_outline_rounded, size: 16, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Text(
+                  '\${profile.jobsDone} \${t('tech_stat_jobs')}',
+                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                ),
+                const Spacer(),
+                const Icon(Icons.star_rounded, size: 16, color: AppColors.gold),
+                const SizedBox(width: 4),
+                Text(
+                  profile.rating.toStringAsFixed(1),
+                  style: const TextStyle(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w800),
+                ),
+              ],
             ),
           ),
         ],
@@ -221,55 +221,50 @@ class _HeaderStat extends StatelessWidget {
   }
 }
 
-// ── Offline state ─────────────────────────────────────────────────
 class _OfflineState extends StatelessWidget {
   const _OfflineState();
 
   @override
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.border),
-            boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(.06), blurRadius: 24, offset: const Offset(0, 10))],
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(width: 58, height: 58,
-              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(18)),
-              child: const Icon(Icons.event_available_rounded, color: AppColors.primary, size: 29)),
-            const SizedBox(height: 20),
-            Text(t('tech_offline_title'),
-                style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
-            const SizedBox(height: 8),
-            Text(t('tech_offline_sub'),
-                style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.textSecondary)),
-            const SizedBox(height: 20),
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(16)),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Icon(Icons.tips_and_updates_outlined, color: AppColors.primary, size: 20),
-                const SizedBox(width: 10),
-                Expanded(child: Text(
-                  'Activez votre disponibilité avec le bouton en haut pour recevoir les demandes près de vous.',
-                  style: const TextStyle(fontSize: 12.5, height: 1.5, color: AppColors.primaryDark),
-                )),
-              ]),
+              width: 68,
+              height: 68,
+              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(22)),
+              child: const Icon(Icons.power_settings_new_rounded, color: AppColors.primary, size: 32),
             ),
-          ]),
+            const SizedBox(height: 18),
+            Text(
+              t('tech_offline_title'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              t('tech_offline_sub'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Activez votre disponibilité avec le bouton ci-dessus pour recevoir des demandes.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, height: 1.5, color: AppColors.textSecondary),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-// ── Job feed ──────────────────────────────────────────────────────
+// ── Simple job list ───────────────────────────────────────────────
 class _JobFeed extends StatefulWidget {
   const _JobFeed({required this.profile, required this.firestoreService});
   final TechnicianProfile profile;
@@ -293,91 +288,37 @@ class _JobFeedState extends State<_JobFeed> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(18, 20, 18, 14),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0F9D58), Color(0xFF086B43)],
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'VOTRE ACTIVITÉ',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1),
               ),
-              borderRadius: BorderRadius.circular(23),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(.18),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'VOTRE ESPACE PROFESSIONNEL',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.25,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Missions disponibles',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 21,
-                          height: 1.15,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Trouvez une intervention, consultez les détails et envoyez votre offre.',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(.82),
-                          fontSize: 11.5,
-                          height: 1.45,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(.14),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: const Icon(
-                    Icons.handyman_rounded,
-                    color: Colors.white,
-                    size: 29,
-                  ),
-                ),
-              ],
-            ),
+              const SizedBox(height: 5),
+              const Text(
+                'Demandes disponibles',
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Les nouvelles missions correspondant à vos services apparaissent ici.',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.45),
+              ),
+            ],
           ),
         ),
         if (mySkills.isNotEmpty)
           SizedBox(
-            height: 48,
+            height: 43,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _SkillChip(
                   label: t('orders_filter_all'),
-                  icon: Icons.grid_view_rounded,
+                  icon: Icons.apps_rounded,
                   selected: _skillFilter == null,
                   onTap: () => setState(() => _skillFilter = null),
                 ),
@@ -385,52 +326,14 @@ class _JobFeedState extends State<_JobFeed> {
                   label: skill.label,
                   icon: skill.icon,
                   selected: _skillFilter == skill.id,
-                  onTap: () => setState(
-                    () => _skillFilter =
-                        _skillFilter == skill.id ? null : skill.id,
-                  ),
+                  onTap: () => setState(() => _skillFilter = _skillFilter == skill.id ? null : skill.id),
                 )),
               ],
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 13, 20, 7),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Demandes récentes',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.bolt_rounded, color: AppColors.primary, size: 14),
-                    SizedBox(width: 4),
-                    Text(
-                      'EN DIRECT',
-                      style: TextStyle(
-                        color: AppColors.primaryDark,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: .7,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, 15, 20, 8),
+          child: Divider(height: 1, color: AppColors.border),
         ),
         Expanded(
           child: StreamBuilder<List<Map<String, dynamic>>>(
@@ -446,42 +349,33 @@ class _JobFeedState extends State<_JobFeed> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.cloud_off_rounded,
-                            color: AppColors.danger, size: 34),
+                        const Icon(Icons.cloud_off_outlined, color: AppColors.danger, size: 30),
                         const SizedBox(height: 10),
-                        Text(
+                        const Text(
                           'Impossible de charger les demandes.',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w800,
-                          ),
+                          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 5),
                         Text(
                           snapshot.error.toString(),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 11,
-                          ),
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                         ),
                       ],
                     ),
                   ),
                 );
               }
-              if (snapshot.connectionState == ConnectionState.waiting &&
-                  !snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+
+              if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator(strokeWidth: 2));
               }
 
               var jobs = snapshot.data ?? <Map<String, dynamic>>[];
               if (_skillFilter != null) {
                 jobs = jobs.where((job) {
-                  final type = (job['serviceType'] as String? ?? '')
-                      .toLowerCase()
-                      .replaceFirst('sos_', '');
+                  final type = (job['serviceType'] as String? ?? '').toLowerCase().replaceFirst('sos_', '');
                   return type == _skillFilter;
                 }).toList();
               }
@@ -489,25 +383,13 @@ class _JobFeedState extends State<_JobFeed> {
               if (jobs.isEmpty) return const _EmptyFeed();
 
               return ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                 itemCount: jobs.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) => TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 280 + index * 55),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, value, child) => Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 12 * (1 - value)),
-                      child: child,
-                    ),
-                  ),
-                  child: _JobCard(
-                    job: jobs[index],
-                    profile: widget.profile,
-                    firestoreService: widget.firestoreService,
-                  ),
+                separatorBuilder: (_, __) => const SizedBox(height: 9),
+                itemBuilder: (context, index) => _JobCard(
+                  job: jobs[index],
+                  profile: widget.profile,
+                  firestoreService: widget.firestoreService,
                 ),
               );
             },
@@ -528,11 +410,11 @@ class _SkillChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: GestureDetector(
+      padding: const EdgeInsets.only(right: 7),
+      child: InkWell(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? AppColors.primary : AppColors.surface,
@@ -544,8 +426,10 @@ class _SkillChip extends StatelessWidget {
             children: [
               Icon(icon, size: 13, color: selected ? Colors.white : AppColors.textSecondary),
               const SizedBox(width: 5),
-              Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-                  color: selected ? Colors.white : AppColors.textPrimary)),
+              Text(
+                label,
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: selected ? Colors.white : AppColors.textPrimary),
+              ),
             ],
           ),
         ),
@@ -560,61 +444,28 @@ class _EmptyFeed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.watch<LanguageCubit>().state.t;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 30),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(21),
-          decoration: BoxDecoration(
-            color: AppColors.surface, borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: AppColors.border),
-            boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(.06), blurRadius: 24, offset: const Offset(0, 10))],
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Container(width: 50, height: 50,
-                decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(16)),
-                child: const Icon(Icons.work_outline_rounded, color: AppColors.primary, size: 26)),
-              const Spacer(),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-                decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(30)),
-                child: Row(children: [
-                  Container(width: 7, height: 7, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
-                  const SizedBox(width: 6),
-                  Text(t('tech_online_status'), style: const TextStyle(fontSize: 10.5, color: AppColors.primaryDark, fontWeight: FontWeight.w800)),
-                ]),
-              ),
-            ]),
-            const SizedBox(height: 20),
-            Text(t('tech_feed_empty_title'),
-              style: const TextStyle(fontSize: 20, height: 1.25, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
-            const SizedBox(height: 8),
-            Text(t('tech_feed_empty_sub'),
-              style: const TextStyle(fontSize: 13, height: 1.6, color: AppColors.textSecondary)),
-            const SizedBox(height: 18),
-            const Divider(height: 1, color: AppColors.border),
-            const SizedBox(height: 15),
-            const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.tips_and_updates_outlined, color: AppColors.primary, size: 19),
-              SizedBox(width: 9),
-              Expanded(child: Text('Gardez vos compétences à jour et votre disponibilité activée. Les nouvelles demandes compatibles apparaîtront ici.',
-                style: TextStyle(fontSize: 12, height: 1.55, color: AppColors.textSecondary))),
-            ]),
-          ]),
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.inbox_outlined, size: 42, color: AppColors.textMuted.withOpacity(.7)),
+            const SizedBox(height: 13),
+            Text(
+              t('tech_feed_empty_title'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              t('tech_feed_empty_sub'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.5),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(17),
-          decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border)),
-          child: const Row(children: [
-            Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 23),
-            SizedBox(width: 12),
-            Expanded(child: Text('Une demande claire, une réponse rapide et un travail soigné renforcent votre réputation sur Brikool.',
-              style: TextStyle(fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: AppColors.textSecondary))),
-          ]),
-        ),
-      ],
+      ),
     );
   }
 }
