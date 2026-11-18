@@ -202,7 +202,7 @@ class _Header extends StatelessWidget {
                 const Icon(Icons.work_outline_rounded, size: 16, color: AppColors.textSecondary),
                 const SizedBox(width: 6),
                 Text(
-                  '\${profile.jobsDone} \${t('tech_stat_jobs')}',
+                  '${profile.jobsDone} ${t("tech_stat_jobs")}',
                   style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
